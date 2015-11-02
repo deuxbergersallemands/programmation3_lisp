@@ -25,9 +25,15 @@
 
 
 (defun demander-rang ()
-   (format t "Choissisez un rang (1-9): ")
-   (defparameter *chiffre* (parse-integer (read-line)))
-  *chiffre*)
+   (defparameter *drapeau-rang* 0)  
+   (loop do
+      (format t "Choissisez un rang (1-9): ")
+      (defparameter *rang* (parse-integer (read-line)))
+      (if (and (> *rang* 0) (< *rang* 10))
+         (progn (setf *drapeau-rang* 0) 
+         *rang*)
+        (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-rang* 1)))
+     until (= 0 *drapeau-rang*)))
 
 ;;; LE JEU ;;;
 
