@@ -19,6 +19,7 @@
 ;;; FONCTIONS ;;;
 
 (defun afficher-grille (grille)
+  (format t "~%  A   B   C   D   E   F   G   H   I  ")
   (format t "~% ----------------------------------- ~%")
   (loop for i below (car (array-dimensions grille)) do
         (loop for j below (cadr (array-dimensions grille)) do
@@ -31,12 +32,11 @@
    (loop do
       (format t "Choisissez un chiffre entre 1 et 9: ")
       (defparameter *chiffre* (parse-integer (read-line)))
-      (format t "Déclaration 1. ")
       (if (and (> *chiffre* 0) (< *chiffre* 10))
          (progn (setf *drapeau-chif* 0) 
          *chiffre*)
         (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-chif* 1)))
-     until (= 0 *drapeau-chif*)))
+     until (zerop *drapeau-chif*)))
 
 
 (defun demander-colonne ()
@@ -48,7 +48,7 @@
          (progn (setf *drapeau-col* 0)
              (setf *colonne* (- *colonne* 65)))
          (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-col* 1)))
-    until (= 0 *drapeau-col*)))
+    until (zerop *drapeau-col*)))
          
 
 (defun demander-rang ()
@@ -60,7 +60,7 @@
          (progn (setf *drapeau-rang* 0) 
          (setf *rang* (- *rang* 1)))
         (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-rang* 1)))
-     until (= 0 *drapeau-rang*))
+     until (zerop *drapeau-rang*))
     (clear-input))
 
 
@@ -84,7 +84,7 @@
       (loop for x from 0 to 8 do
          (if (/= *drapeau* 1)
             (if (/= (aref grille x y) (aref solution x y))
-               (progn (format t " ca se plainte: ~d ~d  " x y)
+               (progn (format t " ca se plainte: ~d ~d  chiffres/ ~d et ~d " x y (aref grille x y) (aref solution x y))
                (setf *drapeau* 1)))))))
    (if (/= *drapeau* 1)
       (format t "Félicitations ! Vous avez gagné !")
@@ -108,4 +108,4 @@
       (verifier-solution *grille-vite* *grille-solution*)
       ;(remplir-grille 0 *rang* *grille-modifiable* *chiffre*)
       ;(verifier-solution *grille-modifiable* *grille-solution*)
-   until (= *drapeau* 0)))
+    until (zerop *drapeau*)))
