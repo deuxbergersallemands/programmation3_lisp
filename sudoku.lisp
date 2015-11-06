@@ -35,7 +35,7 @@
       (if (and (> *chiffre* 0) (< *chiffre* 10))
          (progn (setf *drapeau-chif* 0) 
          *chiffre*)
-        (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-chif* 1)))
+        (progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chif* 1)))
      until (zerop *drapeau-chif*)))
 
 
@@ -47,7 +47,7 @@
       (if (and (< *colonne* 74) (> *colonne* 64))
          (progn (setf *drapeau-col* 0)
              (setf *colonne* (- *colonne* 65)))
-         (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-col* 1)))
+         (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1)))
     until (zerop *drapeau-col*)))
          
 
@@ -59,7 +59,7 @@
       (if (and (> *rang* 0) (< *rang* 10))
          (progn (setf *drapeau-rang* 0) 
          (setf *rang* (- *rang* 1)))
-        (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-rang* 1)))
+        (progn (format t "Ce rang n'est pas valable. ") (setf *drapeau-rang* 1)))
      until (zerop *drapeau-rang*))
     (clear-input))
 
@@ -74,7 +74,8 @@
       (verifier-modele x y *grille-modele*)
       (if (= 0 *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
-         (format t "Veuillez essayer à nouveau.  "))) 
+        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; Décommenté car version aléatoire prend beaucoup de temps
+      )) 
       
     
 (defun verifier-solution(grille solution)
@@ -86,9 +87,16 @@
             (if (/= (aref grille x y) (aref solution x y))
                (setf *drapeau* 1))))))
    (if (/= *drapeau* 1)
-      (format t "Félicitations ! Vous avez gagné !")
-      (format t "Vous n'avez pas encore gagné ! ")))
+      (format t "Félicitations ! Vous avez gagné !~%")
+      ;(format t "Vous n'avez pas encore gagné !~%")
+   ))
 
+
+(defun generer-variables-aleatoires ()
+  (defparameter *colonne* (random 9))
+  (defparameter *rang* (random 9))
+  (defparameter *chiffre* (1+ (random 9)))) ; Chiffre entre 1 et 9
+  
 
 
    
@@ -103,7 +111,7 @@
       (defparameter *jeu* (read-line))
       (cond 
          ((string-equal *jeu* "interactif") (sudoku-interactive))
-         ((string-equal *jeu* "aleatoire") (format t "Désolé, cette version n'est pas encore disponible. ~%"))
+         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
          ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible. ~%")) 
          (t (format t "Cet option n'existe pas.  Veuillez essayer une des options en dessous. ~%")))
    until (zerop *drapeau*)))
@@ -117,3 +125,13 @@
       (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
       (verifier-solution *grille-vite* *grille-solution*)
     until (zerop *drapeau*)))
+
+(defun sudoku-aleatoire()
+  (afficher-grille *grille-vite*)
+  (format t "Veuillez patienter -- la version aléatoire peut prendre beaucoup de temps à compléter.")
+  (loop do
+     (generer-variables-aleatoires)
+     (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
+     (verifier-solution *grille-vite* *grille-solution*)
+  until (zerop *drapeau*))
+  (afficher-grille *grille-visite*))
