@@ -44,10 +44,9 @@
    (loop do
       (format t "Choisissez une colonne (A-I): ")
       (defparameter *colonne* (char-code (char (read-line) 0)))
-      (if (and (< *colonne* 74) (> *colonne* 64))
-         (progn (setf *drapeau-col* 0)
-             (setf *colonne* (- *colonne* 65)))
-         (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1)))
+	 (cond ((and (< *colonne* 74) (> *colonne* 64)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 65))))  ; pour les majuscules
+               ((and (< *colonne* 106) (> *colonne* 96)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 97))))  ;pour les minuscules
+	       (t (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1))))
     until (zerop *drapeau-col*)))
          
 
@@ -77,7 +76,24 @@
         ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; DÃ©commentÃ© car version alÃ©atoire prend beaucoup de temps
       )) 
       
-    
+      
+; fontion appelé à chaque tour pour savoir si la grille est fini ou pas      
+(defun verifier-grille-rempli (grille)
+   (defparameter *drapeau-rempli* 0)
+    (loop for y from 0 to 8 do
+     (if (/= *drapeau-rempli* 1)
+      (loop for x from 0 to 8 do
+         (if (/= *drapeau-rempli* 1)
+            (if (zerop (aref grille x y) )
+               (setf *drapeau-rempli* 1)))))
+	       )
+   (if (zerop *drapeau-rempli* )
+	(progn(format t "La grille est entièrement remplie !~%") (verifier-solution grille *grille-solution*))
+       (format t "La grille n'est pas entièrement remplie !~%"))
+  )
+  
+      
+;fonction pour savoir si ,une fois la grille rempli , elle est gagnante ou pas
 (defun verifier-solution(grille solution)
    (defparameter *drapeau* 0)
    (loop for y from 0 to 8 do
@@ -87,8 +103,8 @@
             (if (/= (aref grille x y) (aref solution x y))
                (setf *drapeau* 1))))))
    (if (/= *drapeau* 1)
-      (format t "FÃ©licitations ! Vous avez gagnÃ© !~%")
-      ;(format t "Vous n'avez pas encore gagnÃ© !~%")
+      (format t "Félicitations ! Vous avez gagné !~%")
+      (format t "Vous n'avez pas la bonne solution! Trouvez votre erreur pour gagné !~%")
    ))
 
 
@@ -103,17 +119,17 @@
 ;;; LE JEU ;;;
 
 (defun sudoku()
-   (format t "Yo ! Bienvenue ! Bienvenido ! Wilkommen !")
+   (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
    (defparameter *drapeau* 1)
    (loop do 
-      (format t "Vous voulez jouer au Sudoku en quel mode ? Choisissez parmi les options suivantes: ~%")
-      (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratÃ©gie alÃ©atoire, ou 'ia' pour voir une IA jouer : ")
+      (format t "Choisissez votre mode : ~%")
+      (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
       (defparameter *jeu* (read-line))
       (cond 
          ((string-equal *jeu* "interactif") (sudoku-interactive))
          ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
-         ((string-equal *jeu* "ia") (format t "DÃ©solÃ©, cette version n'est pas encore disponible. ~%")) 
-         (t (format t "Cet option n'existe pas.  Veuillez essayer une des options en dessous. ~%")))
+         ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible. ~%")) 
+         (t (format t "Cet option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
 (defun sudoku-interactive()
@@ -123,15 +139,15 @@
       (demander-colonne)
       (demander-chiffre)
       (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-      (verifier-solution *grille-vite* *grille-solution*)
+      (verifier-grille-rempli *grille-vite*)
     until (zerop *drapeau*)))
 
 (defun sudoku-aleatoire()
   (afficher-grille *grille-vite*)
-  (format t "Veuillez patienter -- la version alÃ©atoire peut prendre beaucoup de temps Ã  complÃ©ter.")
+  (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter.")
   (loop do
      (generer-variables-aleatoires)
      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-     (verifier-solution *grille-vite* *grille-solution*)
+     (verifier-grille-rempli *grille-vite*)
   until (zerop *drapeau*))
   (afficher-grille *grille-visite*))
