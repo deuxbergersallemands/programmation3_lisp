@@ -97,6 +97,19 @@
 
 (defun sudoku()
    (format t "Yo ! Bienvenue ! Bienvenido ! Wilkommen !")
+   (defparameter *drapeau* 1)
+   (loop do 
+      (format t "Vous voulez jouer quelle version de Sudoku ? Choisissez parmi les options suivantes: ~%")
+      (format t "'interact' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer: ")
+      (defparameter *jeu* (read-line))
+      (cond 
+         ((string-equal *jeu* "interact") (sudoku-interactive))
+         ((string-equal *jeu* "aleatoire") (format t "Désolé, cette version n'est pas encore disponible ~%"))
+         ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible ~%")) 
+         (t (format t "Cet option n'existe pas.  Veuillez essayer une des options en dessous. ~%")))
+   until (zerop *drapeau*)))
+
+(defun sudoku-interactive()
    (loop do 
       (format t "debut boucle")
       ;(afficher-grille *grille-modifiable*)
