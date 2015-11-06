@@ -19,7 +19,6 @@
 ;;; FONCTIONS ;;;
 
 (defun afficher-grille (grille)
-  (format t "~%  A   B   C   D   E   F   G   H   I  ")
   (format t "~% ----------------------------------- ~%")
   (loop for i below (car (array-dimensions grille)) do
         (loop for j below (cadr (array-dimensions grille)) do
@@ -30,108 +29,95 @@
 (defun demander-chiffre ()
    (defparameter *drapeau-chif* 0)    
    (loop do
-      (format t "Choisissez un chiffre entre 1 et 9: ")
+      (format t "Choisissez un chiffre entre 1 et 9:")
       (defparameter *chiffre* (parse-integer (read-line)))
       (if (and (> *chiffre* 0) (< *chiffre* 10))
          (progn (setf *drapeau-chif* 0) 
          *chiffre*)
-        (progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chif* 1)))
+        (progn (format t "Veuillez r�essayer. ") (setf *drapeau-chif* 1)))
      until (zerop *drapeau-chif*)))
 
 
 (defun demander-colonne ()
    (defparameter *drapeau-col* 0)
    (loop do
-      (format t "Choisissez une colonne (A-I): ")
-      (defparameter *colonne* (char-code (char (read-line) 0)))
-      (if (and (< *colonne* 74) (> *colonne* 64))
-         (progn (setf *drapeau-col* 0)
-             (setf *colonne* (- *colonne* 65)))
-         (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1)))
+      (format t "Choisissez une colonne (A-I):")
+      ;(defparameter *colonne* (string-trim '(#\Space #\Newline #\Backspace #\Tab) (read-line)))
+      (defparameter *colonne* (char-code (read-char)))
+    (cond ((and (< *colonne* 74) (> *colonne* 64)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 65))))  ; pour les majuscules
+               ((and (< *colonne* 106) (> *colonne* 96)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 97))))  ;pour les minuscules
+	       (t (progn (format t "Veuillez r�essayer. ") (setf *drapeau-col* 1))))
     until (zerop *drapeau-col*)))
-         
-
+ 
+ 
 (defun demander-rang ()
    (defparameter *drapeau-rang* 0)  
    (loop do
-      (format t "Choisissez un rang (1-9): ")
+      (format t "Choisissez un rang (1-9):")
       (defparameter *rang* (parse-integer (read-line)))
       (if (and (> *rang* 0) (< *rang* 10))
          (progn (setf *drapeau-rang* 0) 
          (setf *rang* (- *rang* 1)))
-        (progn (format t "Ce rang n'est pas valable. ") (setf *drapeau-rang* 1)))
-     until (zerop *drapeau-rang*))
-    (clear-input))
+        (progn (format t "Veuillez r�essayer. ") (setf *drapeau-rang* 1)))
+     until (zerop *drapeau-rang*)))
 
 
 (defun verifier-modele (x y modele) 
-  (if (= 0 (aref modele x y))
+  (if (zerop (aref modele x y))
      (setf *drapeau-placement* 0)    ; Modifiable 
      (setf *drapeau-placement* 1)))  ; Non-modifiable
 
 (defun remplir-grille (y x grille chiffre)
    (defparameter *drapeau-placement* 0)
       (verifier-modele x y *grille-modele*)
-      (if (= 0 *drapeau-placement*)
+      (if (zerop *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
-        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; Décommenté car version aléatoire prend beaucoup de temps
-      )) 
+         (format t "Veuillez r�essayer.  "))) 
       
     
+
+
+(defun verifier-grille-rempli ()
+   (defparameter *drapeau-rempli* 0)
+   (loop for y from 0 to 8 do
+     (if (/= *drapeau-rempli* 1)
+      (loop for x from 0 to 8 do
+         (if (/= *drapeau-rempli* 1)
+      (if (zerop (aref *grille-vite* x y))
+         (setf *drapeau-rempli* 1)))))
+   until (zerop *drapeau-rempli*)))
+
+
 (defun verifier-solution(grille solution)
    (defparameter *drapeau* 0)
    (loop for y from 0 to 8 do
      (if (/= *drapeau* 1)
       (loop for x from 0 to 8 do
          (if (/= *drapeau* 1)
-            (if (/= (aref grille x y) (aref solution x y))
-               (setf *drapeau* 1))))))
+      (if (/= (aref grille x y) (aref solution x y))
+         (setf *drapeau* 1))))))
    (if (/= *drapeau* 1)
-      (format t "Félicitations ! Vous avez gagné !~%")
-      ;(format t "Vous n'avez pas encore gagné !~%")
-   ))
+      (format t "Félicitations ! Vous avez gagné !")
+      (format t "Vous perdu ! ")))
 
-
-(defun generer-variables-aleatoires ()
-  (defparameter *colonne* (random 9))
-  (defparameter *rang* (random 9))
-  (defparameter *chiffre* (1+ (random 9)))) ; Chiffre entre 1 et 9
-  
 
 
    
 ;;; LE JEU ;;;
 
 (defun sudoku()
-   (format t "Yo ! Bienvenue ! Bienvenido ! Wilkommen !")
-   (defparameter *drapeau* 1)
+   (format t "D�but du jeu!")
    (loop do 
-      (format t "Vous voulez jouer au Sudoku en quel mode ? Choisissez parmi les options suivantes: ~%")
-      (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
-      (defparameter *jeu* (read-line))
-      (cond 
-         ((string-equal *jeu* "interactif") (sudoku-interactive))
-         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
-         ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible. ~%")) 
-         (t (format t "Cet option n'existe pas.  Veuillez essayer une des options en dessous. ~%")))
-   until (zerop *drapeau*)))
-
-(defun sudoku-interactive()
-   (loop do 
+      ;(format t "debut boucle")
+      ;(afficher-grille *grille-modifiable*)
       (afficher-grille *grille-vite*)
       (demander-rang)
-      (demander-colonne)
+      ;(demander-colonne)
       (demander-chiffre)
-      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-      (verifier-solution *grille-vite* *grille-solution*)
-    until (zerop *drapeau*)))
-
-(defun sudoku-aleatoire()
-  (afficher-grille *grille-vite*)
-  (format t "Veuillez patienter -- la version aléatoire peut prendre beaucoup de temps à compléter.")
-  (loop do
-     (generer-variables-aleatoires)
-     (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-     (verifier-solution *grille-vite* *grille-solution*)
-  until (zerop *drapeau*))
-  (afficher-grille *grille-visite*))
+      (remplir-grille 0 *rang* *grille-vite* *chiffre*)
+      (verifier-grille-rempli)
+      (if (zerop *drapeau-rempli*)
+	(verifier-solution *grille-vite* *grille-solution*))
+      ;(remplir-grille 0 *rang* *grille-modifiable* *chiffre*)
+      ;(verifier-solution *grille-modifiable* *grille-solution*)
+     until (zerop *drapeau*)))
