@@ -31,6 +31,7 @@
    (loop do
       (format t "Choisissez un chiffre entre 1 et 9: ")
       (defparameter *chiffre* (parse-integer (read-line)))
+      (format t "Déclaration 1. ")
       (if (and (> *chiffre* 0) (< *chiffre* 10))
          (progn (setf *drapeau-chif* 0) 
          *chiffre*)
@@ -42,7 +43,7 @@
    (defparameter *drapeau-col* 0)
    (loop do
       (format t "Choisissez une colonne (A-I): ")
-      (defparameter *colonne* (char-code (read-char)))
+      (defparameter *colonne* (char-code (char (read-line) 0)))
       (if (and (< *colonne* 74) (> *colonne* 64))
          (progn (setf *drapeau-col* 0)
              (setf *colonne* (- *colonne* 65)))
@@ -59,7 +60,8 @@
          (progn (setf *drapeau-rang* 0) 
          (setf *rang* (- *rang* 1)))
         (progn (format t "Veuillez essayer à nouveau. ") (setf *drapeau-rang* 1)))
-     until (= 0 *drapeau-rang*)))
+     until (= 0 *drapeau-rang*))
+    (clear-input))
 
 
 (defun verifier-modele (x y modele) 
@@ -75,16 +77,15 @@
          (format t "Veuillez essayer à nouveau.  "))) 
       
     
-
-
 (defun verifier-solution(grille solution)
    (defparameter *drapeau* 0)
    (loop for y from 0 to 8 do
      (if (/= *drapeau* 1)
       (loop for x from 0 to 8 do
          (if (/= *drapeau* 1)
-      (if (/= (aref grille x y) (aref solution x y))
-         (setf *drapeau* 1))))))
+            (if (/= (aref grille x y) (aref solution x y))
+               (progn (format t " ca se plainte: ~d ~d  " x y)
+               (setf *drapeau* 1)))))))
    (if (/= *drapeau* 1)
       (format t "Félicitations ! Vous avez gagné !")
       (format t "Vous n'avez pas encore gagné ! ")))
@@ -101,10 +102,10 @@
       ;(afficher-grille *grille-modifiable*)
       (afficher-grille *grille-vite*)
       (demander-rang)
-      ;(demander-colonne)
+      (demander-colonne)
       (demander-chiffre)
-      (remplir-grille 0 *rang* *grille-vite* *chiffre*)
+      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
       (verifier-solution *grille-vite* *grille-solution*)
       ;(remplir-grille 0 *rang* *grille-modifiable* *chiffre*)
       ;(verifier-solution *grille-modifiable* *grille-solution*)
-     until (= *drapeau* 0)))
+   until (= *drapeau* 0)))
