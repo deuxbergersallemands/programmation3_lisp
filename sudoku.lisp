@@ -6,7 +6,7 @@
 (defparameter *solution-avec-zero* (list (list 0 4 0 0 0 0 3 0 0) (list 0 0 6 8 2 0 0 4 7) (list 0 3 0 4 0 5 0 0 9) (list 0 8 4 0 0 7 9 0 0) (list 3 2 0 0 8 0 0 5 1) (list 0 0 1 3 0 0 4 6 0) (list 4 0 0 9 0 8 0 7 0) (list 7 1 0 0 5 6 8 0 0) (list 0 0 8 0 0 0 0 3 0) ))
 
 
-; Modèle pour vérifier que l'utilisateur n'écrase pas les chiffres donnés au début du jeu.  
+; ModÃ¨le pour vÃ©rifier que l'utilisateur n'Ã©crase pas les chiffres donnÃ©s au dÃ©but du jeu.  
 (defparameter *grille-modele* (make-array '(9 9) :initial-contents *solution-avec-zero*))
 
 (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents *solution-avec-zero*))
@@ -44,10 +44,9 @@
    (loop do
       (format t "Choisissez une colonne (A-I): ")
       (defparameter *colonne* (char-code (char (read-line) 0)))
-      (if (and (< *colonne* 74) (> *colonne* 64))
-         (progn (setf *drapeau-col* 0)
-             (setf *colonne* (- *colonne* 65)))
-         (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1)))
+	 (cond ((and (< *colonne* 74) (> *colonne* 64)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 65))))  ; pour les majuscules
+               ((and (< *colonne* 106) (> *colonne* 96)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 97))))  ;pour les minuscules
+	       (t (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1))))
     until (zerop *drapeau-col*)))
          
 
@@ -74,10 +73,27 @@
       (verifier-modele x y *grille-modele*)
       (if (= 0 *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
-        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; Décommenté car version aléatoire prend beaucoup de temps
+        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; DÃ©commentÃ© car version alÃ©atoire prend beaucoup de temps
       )) 
       
-    
+      
+; fontion appelé à chaque tour pour savoir si la grille est fini ou pas      
+(defun verifier-grille-rempli (grille)
+   (defparameter *drapeau-rempli* 0)
+    (loop for y from 0 to 8 do
+     (if (/= *drapeau-rempli* 1)
+      (loop for x from 0 to 8 do
+         (if (/= *drapeau-rempli* 1)
+            (if (zerop (aref grille x y) )
+               (setf *drapeau-rempli* 1)))))
+	       )
+   (if (zerop *drapeau-rempli* )
+	(progn(format t "La grille est entièrement remplie !~%") (verifier-solution grille *grille-solution*))
+       (format t "La grille n'est pas entièrement remplie !~%"))
+  )
+  
+      
+;fonction pour savoir si ,une fois la grille rempli , elle est gagnante ou pas
 (defun verifier-solution(grille solution)
    (defparameter *drapeau* 0)
    (loop for y from 0 to 8 do
@@ -88,7 +104,7 @@
                (setf *drapeau* 1))))))
    (if (/= *drapeau* 1)
       (format t "Félicitations ! Vous avez gagné !~%")
-      ;(format t "Vous n'avez pas encore gagné !~%")
+      (format t "Vous n'avez pas la bonne solution! Trouvez votre erreur pour gagné !~%")
    ))
 
 
@@ -103,17 +119,17 @@
 ;;; LE JEU ;;;
 
 (defun sudoku()
-   (format t "Yo ! Bienvenue ! Bienvenido ! Wilkommen !")
+   (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
    (defparameter *drapeau* 1)
    (loop do 
-      (format t "Vous voulez jouer au Sudoku en quel mode ? Choisissez parmi les options suivantes: ~%")
+      (format t "Choisissez votre mode : ~%")
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
       (defparameter *jeu* (read-line))
       (cond 
          ((string-equal *jeu* "interactif") (sudoku-interactive))
          ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
          ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible. ~%")) 
-         (t (format t "Cet option n'existe pas.  Veuillez essayer une des options en dessous. ~%")))
+         (t (format t "Cet option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
 (defun sudoku-interactive()
@@ -123,15 +139,15 @@
       (demander-colonne)
       (demander-chiffre)
       (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-      (verifier-solution *grille-vite* *grille-solution*)
+      (verifier-grille-rempli *grille-vite*)
     until (zerop *drapeau*)))
 
 (defun sudoku-aleatoire()
   (afficher-grille *grille-vite*)
-  (format t "Veuillez patienter -- la version aléatoire peut prendre beaucoup de temps à compléter.")
+  (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter.")
   (loop do
      (generer-variables-aleatoires)
      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-     (verifier-solution *grille-vite* *grille-solution*)
+     (verifier-grille-rempli *grille-vite*)
   until (zerop *drapeau*))
   (afficher-grille *grille-visite*))
