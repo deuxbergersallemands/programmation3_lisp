@@ -6,7 +6,7 @@
 (defparameter *solution-avec-zero* (list (list 0 4 0 0 0 0 3 0 0) (list 0 0 6 8 2 0 0 4 7) (list 0 3 0 4 0 5 0 0 9) (list 0 8 4 0 0 7 9 0 0) (list 3 2 0 0 8 0 0 5 1) (list 0 0 1 3 0 0 4 6 0) (list 4 0 0 9 0 8 0 7 0) (list 7 1 0 0 5 6 8 0 0) (list 0 0 8 0 0 0 0 3 0) ))
 
 ; 0 est là parceque delete ne va pas supprimer le premier élément dans la liste
-(defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6  7 8 9))
+(defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6 7 8 9))
 
 ; ModÃ¨le pour vÃ©rifier que l'utilisateur n'Ã©crase pas les chiffres donnÃ©s au dÃ©but du jeu.  
 (defparameter *grille-modele* (make-array '(9 9) :initial-contents *solution-avec-zero*))
@@ -120,19 +120,21 @@
 
 ;;; Methodes intelligence-artificielle ;;;
 
-
-
+ 
+;;;;;;;;;;;;;;;;;;;;; CETTE METHODE N'EST PAS BIEN ECRITES ;;;;;;;;;;;;;;;;;;;;;;;
 ; Selectionner un carré à parcourir
-(defun IA-choisir-chiffre(grille x y)
-  (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3)) (parcourir-carre grille 0 0)))
-  (if (and (and (>= x 0) (< x 3)) (and (> y 2) (< y 6)) (parcourir-carre grille 0 3)))
-  (if (and (and (>= x 0) (< x 3)) (and (> y 5) (< y 9)) (parcourir-carre grille 0 6)))
-  (if (and (and (> x 2) (< x 6)) (and (>= y 0) (< y 3)) (parcourir-carre grille 3 0)))
-  (if (and (and (> x 2) (< x 6)) (and (> y 2) (< y 6)) (parcourir-carre grille 3 3)))
-  (if (and (and (> x 2) (< x 6)) (and (> y 5) (< y 9)) (parcourir-carre grille 3 6)))
-  (if (and (and (> x 5) (< x 9)) (and (>= y 0) (< y 3)) (parcourir-carre grille 6 0)))
-  (if (and (and (> x 5) (< x 9)) (and (> y 2) (< y 6)) (parcourir-carre grille 6 3)))
-  (if (and (and (> x 5) (< x 9)) (and (> y 5) (< y 9)) (parcourir-carre grille 6 6))))
+(defun IA-choisir-chiffre(grille x y valeurs)
+  (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 0 0 valeurs))
+  (if (and (and (>= x 0) (< x 3)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 0 3 valeurs))
+  (if (and (and (>= x 0) (< x 3)) (and (> y 5) (< y 9))) (IA-parcourir-carre grille 0 6 valeurs))
+  (if (and (and (> x 2) (< x 6)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 3 0 valeurs))
+  (if (and (and (> x 2) (< x 6)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 3 3 valeurs))
+  (if (and (and (> x 2) (< x 6)) (and (> y 5) (< y 9))) (IA-parcourir-carre grille 3 6 valeurs))
+  (if (and (and (> x 5) (< x 9)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 6 0 valeurs))
+  (if (and (and (> x 5) (< x 9)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 6 3 valeurs))
+  (if (and (and (> x 5) (< x 9)) (and (> y 5) (< y 9))) (IA-parcourir-carre grille 6 6 valeurs))
+  valeurs)
+
 
 ; Enlever les valeurs trouvées dans le carré
 (defun IA-parcourir-carre (grille x y valeurs) 
@@ -145,6 +147,7 @@
   (delete (aref grille x (+ y 2)) valeurs)
   (delete (aref grille (1+ x) (+  y 2)) valeurs)
   (delete (aref grille (+ x 2) (+ y 2)) valeurs)
+  (format t "IMP")
   valeurs)
 
 ; Enlever les valeurs trouvées dans la colonne
@@ -157,10 +160,25 @@
   (loop for x from 0 to 8 do 
     (delete (aref grille x y) valeurs)))
 
+; Retourner une liste de valeurs possible pour un créneau 
+(defun IA-determiner-valeurs-possibles(grille x y)
+  (setq *temp-vp* (copy-list *valeurs-possibles*))
+  (IA-choisir-chiffre grille x y *temp-vp*)
+  (IA-parcourir-rang grille y *temp-vp*)
+  (IA-parcourir-colonne grille x *temp-vp*)
+  *temp-vp*)
+
+; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
+; pour chaque créneau pour déterminer quel créneau est à remplir d'abord.
+(defun IA-determiner-solutions-possibles (grille)
+  (defparameter *liste* '())
+  (loop for x from 0 to 8 do 
+    (loop for y from 0 to 8 do
+      (if (zerop (aref grille x y))
+         (setq *liste* (append *liste* (list (list (1- (length (IA-determiner-valeurs-possibles grille x y)))x y)))))))
+   *liste*)
+   
 ;;; LE JEU ;;;
-
-
-
 
 (defun sudoku()
    (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
@@ -197,3 +215,7 @@
   until (zerop *drapeau*))
   (afficher-grille *grille-visite*))
 
+
+;; IA
+;; 1. Determiner quels créneaux ont le moins de chiffre possible (en vérifiant les chiffres dans le carré du créneau, le rang, et la colonne)
+;; 2. Remplir d'abord ce créneaux et continue.  
