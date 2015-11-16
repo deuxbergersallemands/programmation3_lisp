@@ -110,6 +110,8 @@
    ))
 
 
+;;; Méthodes aléatoires ;;;
+
 (defun generer-variables-aleatoires ()
   (defparameter *colonne* (random 9))
   (defparameter *rang* (random 9))
@@ -147,7 +149,6 @@
   (delete (aref grille x (+ y 2)) valeurs)
   (delete (aref grille (1+ x) (+  y 2)) valeurs)
   (delete (aref grille (+ x 2) (+ y 2)) valeurs)
-  (format t "IMP")
   valeurs)
 
 ; Enlever les valeurs trouvées dans la colonne
@@ -176,6 +177,7 @@
     (loop for y from 0 to 8 do
       (if (zerop (aref grille x y))
          (setq *liste* (append *liste* (list (list (1- (length (IA-determiner-valeurs-possibles grille x y)))x y)))))))
+   (reverse (sort *liste* #'> :key #'car))
    *liste*)
    
 ;;; LE JEU ;;;
