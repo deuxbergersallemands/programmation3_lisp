@@ -161,12 +161,16 @@
   (loop for x from 0 to 8 do 
     (delete (aref grille x y) valeurs)))
 
-; Retourner une liste de valeurs possible pour un créneau 
+; Retourner une liste de valeurs possible pour un créneau
+; Si la taille de la liste = 2 (c'est à dire 0 et un autre chiffre sont les seuls chiffres présent dans la liste
+; on va mettre le chiffre dans le créneau tout de suite. 
 (defun IA-determiner-valeurs-possibles(grille x y)
   (setq *temp-vp* (copy-list *valeurs-possibles*))
   (IA-choisir-chiffre grille x y *temp-vp*)
   (IA-parcourir-rang grille y *temp-vp*)
   (IA-parcourir-colonne grille x *temp-vp*)
+  (if (= 2 (list-length *temp-vp*))
+    (setf (aref grille x y) (second *temp-vp*))) 
   *temp-vp*)
 
 ; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
@@ -190,10 +194,9 @@
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
       (defparameter *jeu* (read-line))
       (cond 
-(defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6  7 8 9))
          ((string-equal *jeu* "interactif") (sudoku-interactive))
          ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
-         ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible. ~%")) 
+         ((string-equal *jeu* "ia") (sudoku-ia)) 
          (t (format t "Cet option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
@@ -215,8 +218,15 @@
      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
      (verifier-grille-rempli *grille-vite*)
   until (zerop *drapeau*))
-  (afficher-grille *grille-visite*))
+  (afficher-grille *grille-vite*))
 
+
+(defun sudoku-ia()
+  (loop do
+    (IA-determiner-solutions-possibles *grille-modifiable*)
+    (verifier-grille-rempli *grille-modifiable*)
+  until (zerop *drapeau*))
+  (afficher-grille *grille-modifiable*))
 
 ;; IA
 ;; 1. Determiner quels créneaux ont le moins de chiffre possible (en vérifiant les chiffres dans le carré du créneau, le rang, et la colonne)
