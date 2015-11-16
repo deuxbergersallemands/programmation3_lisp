@@ -5,6 +5,8 @@
 
 (defparameter *solution-avec-zero* (list (list 0 4 0 0 0 0 3 0 0) (list 0 0 6 8 2 0 0 4 7) (list 0 3 0 4 0 5 0 0 9) (list 0 8 4 0 0 7 9 0 0) (list 3 2 0 0 8 0 0 5 1) (list 0 0 1 3 0 0 4 6 0) (list 4 0 0 9 0 8 0 7 0) (list 7 1 0 0 5 6 8 0 0) (list 0 0 8 0 0 0 0 3 0) ))
 
+; 0 est là parceque delete ne va pas supprimer le premier élément dans la liste
+(defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6  7 8 9))
 
 ; ModÃ¨le pour vÃ©rifier que l'utilisateur n'Ã©crase pas les chiffres donnÃ©s au dÃ©but du jeu.  
 (defparameter *grille-modele* (make-array '(9 9) :initial-contents *solution-avec-zero*))
@@ -115,8 +117,50 @@
   
 
 
-   
+
+;;; Methodes intelligence-artificielle ;;;
+
+
+
+; Selectionner un carré à parcourir
+(defun IA-choisir-chiffre(grille x y)
+  (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3)) (parcourir-carre grille 0 0)))
+  (if (and (and (>= x 0) (< x 3)) (and (> y 2) (< y 6)) (parcourir-carre grille 0 3)))
+  (if (and (and (>= x 0) (< x 3)) (and (> y 5) (< y 9)) (parcourir-carre grille 0 6)))
+  (if (and (and (> x 2) (< x 6)) (and (>= y 0) (< y 3)) (parcourir-carre grille 3 0)))
+  (if (and (and (> x 2) (< x 6)) (and (> y 2) (< y 6)) (parcourir-carre grille 3 3)))
+  (if (and (and (> x 2) (< x 6)) (and (> y 5) (< y 9)) (parcourir-carre grille 3 6)))
+  (if (and (and (> x 5) (< x 9)) (and (>= y 0) (< y 3)) (parcourir-carre grille 6 0)))
+  (if (and (and (> x 5) (< x 9)) (and (> y 2) (< y 6)) (parcourir-carre grille 6 3)))
+  (if (and (and (> x 5) (< x 9)) (and (> y 5) (< y 9)) (parcourir-carre grille 6 6))))
+
+; Enlever les valeurs trouvées dans le carré
+(defun IA-parcourir-carre (grille x y valeurs) 
+  (delete (aref grille x y) valeurs)
+  (delete (aref grille (1+ x) y) valeurs)
+  (delete (aref grille (+ x 2) y) valeurs)
+  (delete (aref grille x (1+ y)) valeurs)
+  (delete (aref grille (1+ x) (1+ y)) valeurs)
+  (delete (aref grille (+ x 2) (1+ y)) valeurs)
+  (delete (aref grille x (+ y 2)) valeurs)
+  (delete (aref grille (1+ x) (+  y 2)) valeurs)
+  (delete (aref grille (+ x 2) (+ y 2)) valeurs)
+  valeurs)
+
+; Enlever les valeurs trouvées dans la colonne
+(defun IA-parcourir-colonne (grille x valeurs)
+  (loop for y from 0 to 8 do
+    (delete (aref grille x y) valeurs)))
+
+; Enlever les valeurs trouvées dans le rang
+(defun IA-parcourir-rang (grille y valeurs)
+  (loop for x from 0 to 8 do 
+    (delete (aref grille x y) valeurs)))
+
 ;;; LE JEU ;;;
+
+
+
 
 (defun sudoku()
    (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
@@ -126,6 +170,7 @@
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
       (defparameter *jeu* (read-line))
       (cond 
+(defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6  7 8 9))
          ((string-equal *jeu* "interactif") (sudoku-interactive))
          ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
          ((string-equal *jeu* "ia") (format t "Désolé, cette version n'est pas encore disponible. ~%")) 
@@ -151,3 +196,4 @@
      (verifier-grille-rempli *grille-vite*)
   until (zerop *drapeau*))
   (afficher-grille *grille-visite*))
+
