@@ -5,10 +5,10 @@
 
 (defparameter *solution-avec-zero* (list (list 0 4 0 0 0 0 3 0 0) (list 0 0 6 8 2 0 0 4 7) (list 0 3 0 4 0 5 0 0 9) (list 0 8 4 0 0 7 9 0 0) (list 3 2 0 0 8 0 0 5 1) (list 0 0 1 3 0 0 4 6 0) (list 4 0 0 9 0 8 0 7 0) (list 7 1 0 0 5 6 8 0 0) (list 0 0 8 0 0 0 0 3 0) ))
 
-; 0 est lÃ  parceque delete ne va pas supprimer le premier Ã©lÃ©ment dans la liste
+; 0 est lÃ  parceque delete ne va pas supprimer le premier élément dans la liste
 (defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6 7 8 9))
 
-; ModÃƒÂ¨le pour vÃƒÂ©rifier que l'utilisateur n'ÃƒÂ©crase pas les chiffres donnÃƒÂ©s au dÃƒÂ©but du jeu.  
+; Modèle pour vérifier que l'utilisateur n'écrase pas les chiffres donnés au début du jeu.  
 (defparameter *grille-modele* (make-array '(9 9) :initial-contents *solution-avec-zero*))
 
 (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents *solution-avec-zero*))
@@ -66,20 +66,20 @@
 
 
 (defun verifier-modele (x y modele) 
-  (if (= 0 (aref modele x y))
+  (if (zerop (aref modele x y))
      (setf *drapeau-placement* 0)    ; Modifiable 
      (setf *drapeau-placement* 1)))  ; Non-modifiable
 
 (defun remplir-grille (y x grille chiffre)
    (defparameter *drapeau-placement* 0)
       (verifier-modele x y *grille-modele*)
-      (if (= 0 *drapeau-placement*)
+      (if (zerop *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
-        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; DÃƒÂ©commentÃƒÂ© car version alÃƒÂ©atoire prend beaucoup de temps
+        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; Déjà commenté car version aléatoire prend beaucoup de temps
       )) 
       
       
-; fontion appelÃ© Ã  chaque tour pour savoir si la grille est fini ou pas      
+; fontion appelé à chaque tour pour savoir si la grille est fini ou pas      
 (defun verifier-grille-rempli (grille)
    (defparameter *drapeau-rempli* 0)
     (loop for y from 0 to 8 do
@@ -110,7 +110,7 @@
    ))
 
 
-;;; MÃ©thodes alÃ©atoires ;;;
+;;; Méthodes aléatoires ;;;
 
 (defun generer-variables-aleatoires ()
   (defparameter *colonne* (random 9))
@@ -124,7 +124,7 @@
 
  
 ;;;;;;;;;;;;;;;;;;;;; CETTE METHODE N'EST PAS BIEN ECRITES ;;;;;;;;;;;;;;;;;;;;;;;
-; Selectionner un carrÃ© Ã  parcourir
+; Selectionner un carré à  parcourir
 (defun IA-choisir-chiffre(grille x y valeurs)
   (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 0 0 valeurs))
   (if (and (and (>= x 0) (< x 3)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 0 3 valeurs))
@@ -138,7 +138,7 @@
   valeurs)
 
 
-; Enlever les valeurs trouvÃ©es dans le carrÃ©
+; Enlever les valeurs trouvées dans le carré
 (defun IA-parcourir-carre (grille x y valeurs) 
   (delete (aref grille x y) valeurs)
   (delete (aref grille (1+ x) y) valeurs)
@@ -151,19 +151,19 @@
   (delete (aref grille (+ x 2) (+ y 2)) valeurs)
   valeurs)
 
-; Enlever les valeurs trouvÃ©es dans la colonne
+; Enlever les valeurs trouvées dans la colonne
 (defun IA-parcourir-colonne (grille x valeurs)
   (loop for y from 0 to 8 do
     (delete (aref grille x y) valeurs)))
 
-; Enlever les valeurs trouvÃ©es dans le rang
+; Enlever les valeurs trouvées dans le rang
 (defun IA-parcourir-rang (grille y valeurs)
   (loop for x from 0 to 8 do 
     (delete (aref grille x y) valeurs)))
 
-; Retourner une liste de valeurs possible pour un crÃ©neau
-; Si la taille de la liste = 2 (c'est Ã  dire 0 et un autre chiffre sont les seuls chiffres prÃ©sent dans la liste
-; on va mettre le chiffre dans le crÃ©neau tout de suite. 
+; Retourner une liste de valeurs possible pour un créneau
+; Si la taille de la liste = 2 (c'est Ã  dire 0 et un autre chiffre sont les seuls chiffres présent dans la liste
+; on va mettre le chiffre dans le créneau tout de suite. 
 (defun IA-determiner-valeurs-possibles(grille x y)
   (setq *temp-vp* (copy-list *valeurs-possibles*))
   (IA-choisir-chiffre grille x y *temp-vp*)
@@ -174,7 +174,7 @@
   *temp-vp*)
 
 ; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
-; pour chaque crÃ©neau pour dÃ©terminer quel crÃ©neau est Ã  remplir d'abord.
+; pour chaque créneau pour déterminer quel créneau est à remplir d'abord.
 (defun IA-determiner-solutions-possibles (grille)
   (defparameter *liste* '())
   (loop for x from 0 to 8 do 
@@ -186,48 +186,54 @@
    
 ;;; LE JEU ;;;
 
-(defun sudoku()
+(defun sudoku(grille)
    (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
    (defparameter *drapeau* 1)
    (loop do 
       (format t "Choisissez votre mode : ~%")
-      (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratÃ©gie alÃ©atoire, ou 'ia' pour voir une IA jouer : ")
+      (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
       (defparameter *jeu* (read-line))
       (cond 
-         ((string-equal *jeu* "interactif") (sudoku-interactive))
-         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
-         ((string-equal *jeu* "ia") (sudoku-ia)) 
-         (t (format t "Cet option n'existe pas.  Veuillez rÃ©essayer. ~%")))
+         ((string-equal *jeu* "interactif") (sudoku-interactive grille))
+         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire grille))
+         ((string-equal *jeu* "ia") (sudoku-ia grille) )
+         (t (format t "Cet option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
-(defun sudoku-interactive()
+(defun sudoku-interactive(grille-interact)
    (loop do 
-      (afficher-grille *grille-vite*)
+      (afficher-grille grille-interact)
       (demander-rang)
       (demander-colonne)
       (demander-chiffre)
-      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-      (verifier-grille-rempli *grille-vite*)
+      (remplir-grille *colonne* *rang* grille-interact *chiffre*)
+      (verifier-grille-rempli grille-interact)
     until (zerop *drapeau*)))
 
-(defun sudoku-aleatoire()
-  (afficher-grille *grille-vite*)
-  (format t "Veuillez patienter -- la version alÃ©atoire peut prendre du temps Ã  complÃ©ter.")
+(defun sudoku-aleatoire(grille-aleat)
+  (afficher-grille grille-aleat)
+  (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter.")
   (loop do
      (generer-variables-aleatoires)
-     (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-     (verifier-grille-rempli *grille-vite*)
+     (remplir-grille *colonne* *rang* grille-aleat *chiffre*)
+     (verifier-grille-rempli grille-aleat)
   until (zerop *drapeau*))
-  (afficher-grille *grille-vite*))
+  (afficher-grille grille-aleat))
 
 
-(defun sudoku-ia()
+(defun sudoku-ia(grille-ia)
   (loop do
-    (IA-determiner-solutions-possibles *grille-modifiable*)
-    (verifier-grille-rempli *grille-modifiable*)
+    (IA-determiner-solutions-possibles grille-ia)
+    (verifier-grille-rempli grille-ia)
   until (zerop *drapeau*))
-  (afficher-grille *grille-modifiable*))
+  (afficher-grille grille-ia))
 
 ;; IA
-;; 1. Determiner quels crÃ©neaux ont le moins de chiffre possible (en vÃ©rifiant les chiffres dans le carrÃ© du crÃ©neau, le rang, et la colonne)
-;; 2. Remplir d'abord ce crÃ©neaux et continue.  
+;; 1. Determiner quels créneaux ont le moins de chiffre possible (en vérifiant les chiffres dans le carré du créneau, le rang, et la colonne)
+;; 2. Remplir d'abord ce créneaux et continue.  
+
+
+
+;;; COMMENTAIRES GENERALES
+
+;;faire un nouveau mode où on suggère à l'utilisateur une liste de chiffre valide pour la case 
