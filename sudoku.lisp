@@ -1,5 +1,9 @@
 (defparameter *solution-liste* (list (list 2 4 5 1 7 9 3 8 6) (list 1 9 6 8 2 3 5 4 7) (list 8 3 7 4 6 5 2 1 9) (list 6 8 4 5 1 7 9 2 3) (list 3 2 9 6 8 4 7 5 1) (list 5 7 1 3 9 2 4 6 8) (list 4 6 2 9 3 8 1 7 5) (list 7 1 3 2 5 6 8 9 4) (list 9 5 8 7 4 1 6 3 2)))
 
+(defparameter *sol-fausse* (list (list 2 4 5 1 7 9 3 8 6) (list 2 9 6 8 1 3 5 4 7) (list 8 3 7 4 6 5 2 1 9) (list 6 8 4 5 1 7 9 2 3) (list 3 2 9 6 8 4 7 5 1) (list 5 7 1 3 9 2 4 6 8) (list 4 6 2 9 3 8 1 7 5) (list 7 1 3 2 5 6 8 9 4) (list 9 5 8 7 4 1 6 3 2)))
+
+
+
 (defparameter *solution-liste-presque* (list (list 0 4 5 1 7 9 3 8 6) (list 0 9 6 8 2 3 5 4 7) (list 8 3 7 4 6 5 2 1 9) (list 6 8 4 5 1 7 9 2 3) (list 3 2 9 6 8 4 7 5 1) (list 5 7 1 3 9 2 4 6 8) (list 4 6 2 9 3 8 1 7 5) (list 7 1 3 2 5 6 8 9 4) (list 9 5 8 7 4 1 6 3 2)))
 
 
@@ -8,17 +12,19 @@
 ; 0 est là parceque delete ne va pas supprimer le premier élément dans la liste
 (defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6 7 8 9))
 
-; ModÃ¨le pour vÃ©rifier que l'utilisateur n'Ã©crase pas les chiffres donnÃ©s au dÃ©but du jeu.  
+; Modèle pour véfier que l'utilisateur n'écrase pas les chiffres donné au début du jeu.  
 (defparameter *grille-modele* (make-array '(9 9) :initial-contents *solution-avec-zero*))
 
 (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents *solution-avec-zero*))
 
-(defparameter *grille-vite* (make-array '(9 9) :initial-contents *solution-liste-presque*))
+(defparameter *grille-f* (make-array '(9 9) :initial-contents *sol-fausse*))
 
 
 (defparameter *grille-solution* (make-array '(9 9) :initial-contents *solution-liste*))
 
-;;; FONCTIONS ;;;
+;;; FONCTIONS GÉNÉRALES ;;;
+
+
 
 (defun afficher-grille (grille)
   (format t "~%  A   B   C   D   E   F   G   H   I  ")
@@ -64,18 +70,54 @@
      until (zerop *drapeau-rang*))
     (clear-input))
 
+; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
+; Initialiser toutes les variables du programme
+(defun init-standalone (grille)
+  (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
+  (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
+  (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
+  (loop do
+    (IA-determiner-solutions-possibles *grille-solution*)
+    (valider-grille *grille-solution*)
+    until (= *stop-boucle* 0)))
+
+
+(defun valider-grille (grille)
+  (valider-rangs-et-colonnes grille)
+  (valider-carre grille))
+
+; Vérifier que chaque chiffre 1-9 apparait uniquement une fois dans chaque carré
+(defun valider-carre (grille)
+  ())
+
+; Valider qu'il y a aucune répétition dans les colonnes et les rangs
+(defun valider-rangs-et-colonnes (grille)
+  (setq *stop-boucle* 0)
+  (setq *liste-chiffres* '())
+  (setq *liste-chiffres-2* '())
+
+  (loop for x from 0 to 8 do
+    (loop for y from 0 to 8 do
+      (if (or (zerop (aref grille x y)) (find (aref grille x y) *liste-chiffres*) (find (aref grille y x) *liste-chiffres-2*))
+           (progn (setf *stop-boucle* 1)(return))
+           (progn (setf *liste-chiffres* (append *liste-chiffres* (list (aref grille x y)))) (setf *liste-chiffres-2* (append *liste-chiffres-2* (list (aref grille y x))))) ))
+   (if (= *stop-boucle* 1) 
+     (return)
+     (progn (setf *liste-chiffres-2* '())(setf *liste-chiffres* '()))))
+    (if (/= *stop-boucle* 1) grille))
+
 
 (defun verifier-modele (x y modele) 
-  (if (= 0 (aref modele x y))
+  (if (zerop (aref modele x y))
      (setf *drapeau-placement* 0)    ; Modifiable 
      (setf *drapeau-placement* 1)))  ; Non-modifiable
 
 (defun remplir-grille (y x grille chiffre)
    (defparameter *drapeau-placement* 0)
       (verifier-modele x y *grille-modele*)
-      (if (= 0 *drapeau-placement*)
+      (if (zerop *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
-        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ; DÃ©commentÃ© car version alÃ©atoire prend beaucoup de temps
+        ; (format t "Vous ne pouvez modifier cette cellule. ~%")  ;  décommenté car version aléatoire prend beaucoup de temps
       )) 
       
       
@@ -106,7 +148,7 @@
                (setf *drapeau* 1))))))
    (if (/= *drapeau* 1)
       (format t "Félicitations ! Vous avez gagné !~%")
-      (format t "Vous n'avez pas la bonne solution! Trouvez votre erreur pour gagné !~%")
+      (format t "Vous n'avez pas la bonne solution! Trouvez votre erreur pour gagner !~%")
    ))
 
 
@@ -123,7 +165,7 @@
 ;;; Methodes intelligence-artificielle ;;;
 
  
-;;;;;;;;;;;;;;;;;;;;; CETTE METHODE N'EST PAS BIEN ECRITES ;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;; CETTE METHODE N'EST PAS BIEN ECRITE ;;;;;;;;;;;;;;;;;;;;;;;
 ; Selectionner un carré à parcourir
 (defun IA-choisir-chiffre(grille x y valeurs)
   (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 0 0 valeurs))
@@ -138,7 +180,7 @@
   valeurs)
 
 
-; Enlever les valeurs trouvées dans le carré
+; Enlever les valeurs trouvé dans le carré
 (defun IA-parcourir-carre (grille x y valeurs) 
   (delete (aref grille x y) valeurs)
   (delete (aref grille (1+ x) y) valeurs)
@@ -151,12 +193,12 @@
   (delete (aref grille (+ x 2) (+ y 2)) valeurs)
   valeurs)
 
-; Enlever les valeurs trouvées dans la colonne
+; Enlever les valeurs trouvé dans la colonne
 (defun IA-parcourir-colonne (grille x valeurs)
   (loop for y from 0 to 8 do
     (delete (aref grille x y) valeurs)))
 
-; Enlever les valeurs trouvées dans le rang
+; Enlever les valeurs trouvé dans le rang
 (defun IA-parcourir-rang (grille y valeurs)
   (loop for x from 0 to 8 do 
     (delete (aref grille x y) valeurs)))
@@ -186,7 +228,7 @@
    
 ;;; LE JEU ;;;
 
-(defun sudoku()
+(defun sudoku(grille)
    (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
    (defparameter *drapeau* 1)
    (loop do 
@@ -194,34 +236,35 @@
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour voir une IA jouer : ")
       (defparameter *jeu* (read-line))
       (cond 
-         ((string-equal *jeu* "interactif") (sudoku-interactive))
-         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
-         ((string-equal *jeu* "ia") (sudoku-ia)) 
+         ((string-equal *jeu* "interactif") (sudoku-interactive grille))
+         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire grille))
+         ((string-equal *jeu* "ia") (sudoku-ia grille) )
          (t (format t "Cet option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
-(defun sudoku-interactive()
+(defun sudoku-interactive(grille-interact)
    (loop do 
-      (afficher-grille *grille-vite*)
+      (afficher-grille *grille-modifiable*)
       (demander-rang)
       (demander-colonne)
       (demander-chiffre)
-      (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-      (verifier-grille-rempli *grille-vite*)
+      (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
+      (verifier-grille-rempli *grille-modifiable*)
     until (zerop *drapeau*)))
 
-(defun sudoku-aleatoire()
-  (afficher-grille *grille-vite*)
+(defun sudoku-aleatoire(grille-aleat)
+  (afficher-grille *grille-modifiable*)
   (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter.")
   (loop do
      (generer-variables-aleatoires)
-     (remplir-grille *colonne* *rang* *grille-vite* *chiffre*)
-     (verifier-grille-rempli *grille-vite*)
+     (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
+     (verifier-grille-rempli *grille-modifiable*)
   until (zerop *drapeau*))
-  (afficher-grille *grille-vite*))
+  (afficher-grille *grille-modifiable*))
 
 
-(defun sudoku-ia()
+(defun sudoku-ia(grille-ia)
+  (init-standalone grille-ia)
   (loop do
     (IA-determiner-solutions-possibles *grille-modifiable*)
     (verifier-grille-rempli *grille-modifiable*)
@@ -229,5 +272,11 @@
   (afficher-grille *grille-modifiable*))
 
 ;; IA
-;; 1. Determiner quels créneaux ont le moins de chiffre possible (en vérifiant les chiffres dans le carré du créneau, le rang, et la colonne)
-;; 2. Remplir d'abord ce créneaux et continue.  
+;; 1. Determiner quels crꯥaux ont le moins de chiffre possible (en v곩fiant les chiffres dans le carre u crꯥau, le rang, et la colonne)
+;; 2. Remplir d'abord ce crꯥaux et continue.  
+
+
+
+;;; COMMENTAIRES GENERALES
+
+;;faire un nouveau mode o񠯮 sugg鳥 ࡬'utilisateur une liste de chiffre valide pour la case 
