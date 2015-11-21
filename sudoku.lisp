@@ -17,14 +17,9 @@
 
 (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents *solution-avec-zero*))
 
-(defparameter *grille-f* (make-array '(9 9) :initial-contents *sol-fausse*))
-
-
 (defparameter *grille-solution* (make-array '(9 9) :initial-contents *solution-liste*))
 
 ;;; FONCTIONS GÉNÉRALES ;;;
-
-
 
 (defun afficher-grille (grille)
   (format t "~%  A   B   C   D   E   F   G   H   I  ")
@@ -81,7 +76,7 @@
     (valider-grille *grille-solution*)
     until (= *stop-boucle* 0)))
 
-
+; Vérifer que la grille respecte toutes les regles du jeu
 (defun valider-grille (grille)
   (valider-rangs-et-colonnes grille)
   (valider-carre grille))
@@ -154,10 +149,15 @@
 
 ;;; Méthodes aléatoires ;;;
 
-(defun generer-variables-aleatoires ()
-  (defparameter *colonne* (random 9))
-  (defparameter *rang* (random 9))
-  (defparameter *chiffre* (1+ (random 9)))) ; Chiffre entre 1 et 9
+(defun generer-variables-aleatoires (modele)
+  (setf *drap-aleat* 0)
+  (loop do 
+    (defparameter *colonne* (random 9)) 
+    (defparameter *rang* (random 9))
+    (if (zerop (aref modele *colonne* *rang*))
+      (setf *drap-aleat* 1)) 
+  until (= *drap-aleat* 1)) 
+  (defparameter *chiffre* (1+ (random 9)))); Chiffre entre 1 et 9
   
 
 
@@ -258,7 +258,7 @@
   (afficher-grille *grille-modifiable*)
   (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter.")
   (loop do
-     (generer-variables-aleatoires)
+     (generer-variables-aleatoires *grille-modele*)
      (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
      (verifier-grille-rempli *grille-modifiable*)
   until (zerop *drapeau*))
