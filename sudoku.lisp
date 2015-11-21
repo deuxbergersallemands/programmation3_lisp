@@ -243,6 +243,7 @@
    until (zerop *drapeau*)))
 
 (defun sudoku-interactive(grille-interact)
+   (init-standalone grille-interact)
    (loop do 
       (afficher-grille *grille-modifiable*)
       (demander-rang)
@@ -253,6 +254,7 @@
     until (zerop *drapeau*)))
 
 (defun sudoku-aleatoire(grille-aleat)
+  (init-standalone grille-aleat)
   (afficher-grille *grille-modifiable*)
   (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter.")
   (loop do
