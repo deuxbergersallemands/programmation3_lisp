@@ -9,6 +9,30 @@
 
 (defparameter *solution-avec-zero* (list (list 0 4 0 0 0 0 3 0 0) (list 0 0 6 8 2 0 0 4 7) (list 0 3 0 4 0 5 0 0 9) (list 0 8 4 0 0 7 9 0 0) (list 3 2 0 0 8 0 0 5 1) (list 0 0 1 3 0 0 4 6 0) (list 4 0 0 9 0 8 0 7 0) (list 7 1 0 0 5 6 8 0 0) (list 0 0 8 0 0 0 0 3 0) ))
 
+(defparameter *grille-de-la-prof*  ;;; Marche pas car aucun rang/colonne a un seul possibilité.... devrait mettre à jour la fonction pour considerer ça...
+(list (list 3 0 7 0 0 4 5 6 0)
+    (list 0 0 0 0 0 0 0 0 4)
+    (list 0 0 4 0 0 7 0 3 0)
+    (list 0 2 0 0 1 0 0 7 5)
+    (list 0 0 5 7 0 0 9 0 0)
+    (list 7 0 0 0 5 0 6 0 8)
+    (list 9 0 3 0 2 0 0 8 7)
+    (list 0 0 2 0 8 3 4 5 6)
+    (list 8 0 0 0 7 5 2 9 3)))
+
+(defparameter *grille-de-la-prof-2*
+(list (list 0 1 9 0 2 0 0 0 0)
+    (list 7 0 5 6 0 0 9 3 2)
+    (list 0 0 2 0 0 8 0 7 1)
+    (list 0 0 7 2 0 0 0 0 4)
+    (list 0 3 8 1 4 0 0 2 7)
+    (list 2 4 1 7 0 0 3 8 9)
+    (list 0 5 6 0 9 2 0 0 3)
+    (list 0 0 4 0 5 1 2 0 8)
+    (list 0 0 3 8 0 6 4 0 0)))
+
+
+
 ; 0 est là parceque delete ne va pas supprimer le premier élément dans la liste
 (defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6 7 8 9))
 
@@ -71,6 +95,7 @@
   (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
+  (format t "Init complète")
   (loop do
     (IA-determiner-solutions-possibles *grille-solution*)
     (valider-grille *grille-solution*)
@@ -154,6 +179,7 @@
   (loop do 
     (defparameter *colonne* (random 9)) 
     (defparameter *rang* (random 9))
+    (format t "col: ~a et ran: ~a !!!" *colonne* *rang*)
     (if (zerop (aref modele *colonne* *rang*))
       (setf *drap-aleat* 1)) 
   until (= *drap-aleat* 1)) 
@@ -273,12 +299,9 @@
   until (zerop *drapeau*))
   (afficher-grille *grille-modifiable*))
 
-;; IA
-;; 1. Determiner quels crꯥaux ont le moins de chiffre possible (en v곩fiant les chiffres dans le carre u crꯥau, le rang, et la colonne)
-;; 2. Remplir d'abord ce crꯥaux et continue.  
-
 
 
 ;;; COMMENTAIRES GENERALES
 
 ;;faire un nouveau mode o񠯮 sugg鳥 ࡬'utilisateur une liste de chiffre valide pour la case 
+
