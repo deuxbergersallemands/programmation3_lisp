@@ -89,17 +89,41 @@
      until (zerop *drapeau-rang*))
     (clear-input))
 
+
+
+
+
 ; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
 ; Initialiser toutes les variables du programme
 (defun init-standalone (grille)
+  (defparameter *drapeau-solution-complexe* 1)
   (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
   (format t "Init complète")
   (loop do
-    (IA-determiner-solutions-possibles *grille-solution*)
+    (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
+    ; difficile à implémenter
+    (if (= *drapeau-solution-complexe* 1)
+      (progn (setf *liste-back* (first (backtrack *solutions* *grille-solution*)))
+             (setf *enregistrer-grille* (last *liste-back*))
+             (setf *grille-solution* *enregistrer-grille*)
+             ;;(remplir-grille (second *liste-back*) (first *liste-back*) *grille-solution* (third *liste-back*))
+             (loop for x in (cdr (cdr *liste-back*)) do 
+               (remplir-grille (second *liste-back* (first *liste-back*) *grill-solution* x)
+               (setq *solutions-test* IA-determiner-solutions-possibles)
+               (if (/= *drapeau-solution-complexe* 1) ; si la solution n'est plus complexe
+                 (format t "blahhhhhhhhhhhhhhhhhhh")))))(format t "PAS COMPLEXE")) 
     (valider-grille *grille-solution*)
     until (= *stop-boucle* 0)))
+
+
+
+
+
+
+
+
 
 ; Vérifer que la grille respecte toutes les regles du jeu
 (defun valider-grille (grille)
@@ -107,8 +131,29 @@
   (valider-carre grille))
 
 ; Vérifier que chaque chiffre 1-9 apparait uniquement une fois dans chaque carré
-(defun valider-carre (grille)
-  ())
+(defun valider-carre(grille)
+  (parcourir-carre grille 0 0)
+  (parcourir-carre grille 0 3)
+  (parcourir-carre grille 0 6)
+  (parcourir-carre grille 3 0)
+  (parcourir-carre grille 3 3)
+  (parcourir-carre grille 3 6)
+  (parcourir-carre grille 6 0)
+  (parcourir-carre grille 6 3)
+  (parcourir-carre grille 6 6))
+
+(defun parcourir-carre  (grille x y)
+  (setq *valeurs* (copy-list *valeurs-possibles*))
+  (delete (aref grille x y) *valeurs*)
+  (delete (aref grille (1+ x) y) *valeurs*)
+  (delete (aref grille (+ x 2) y) *valeurs*)
+  (delete (aref grille x (1+ y)) *valeurs*)
+  (delete (aref grille (1+ x) (1+ y)) *valeurs*)
+  (delete (aref grille (+ x 2) (1+ y)) *valeurs*)
+  (delete (aref grille x (+ y 2)) *valeurs*)
+  (delete (aref grille (1+ x) (+  y 2)) *valeurs*)
+  (delete (aref grille (+ x 2) (+ y 2)) *valeurs*)
+  (if (/= (list-length *valeurs*) 1) (setq *stop-boucle* 1)))
 
 ; Valider qu'il y a aucune répétition dans les colonnes et les rangs
 (defun valider-rangs-et-colonnes (grille)
@@ -120,7 +165,7 @@
     (loop for y from 0 to 8 do
       (if (or (zerop (aref grille x y)) (find (aref grille x y) *liste-chiffres*) (find (aref grille y x) *liste-chiffres-2*))
            (progn (setf *stop-boucle* 1)(return))
-           (progn (setf *liste-chiffres* (append *liste-chiffres* (list (aref grille x y)))) (setf *liste-chiffres-2* (append *liste-chiffres-2* (list (aref grille y x))))) ))
+           (progn (setf *liste-chiffres* (append *liste-chiffres* (list (aref grille x y)))) (setf *liste-chiffres-2* (append *liste-chiffres-2* (list (aref grille y x)))))))
    (if (= *stop-boucle* 1) 
      (return)
      (progn (setf *liste-chiffres-2* '())(setf *liste-chiffres* '()))))
@@ -153,8 +198,8 @@
 	       )
    (if (zerop *drapeau-rempli* )
 	(progn(format t "La grille est entièrement remplie !~%") (verifier-solution grille *grille-solution*))
-       (format t "La grille n'est pas entièrement remplie !~%"))
-  )
+       (format t "La grille n'est pas entièrement remplie !~%")))
+
   
       
 ;fonction pour savoir si ,une fois la grille rempli , elle est gagnante ou pas
@@ -168,8 +213,7 @@
                (setf *drapeau* 1))))))
    (if (/= *drapeau* 1)
       (format t "Félicitations ! Vous avez gagné !~%")
-      (format t "Vous n'avez pas la bonne solution! Trouvez votre erreur pour gagner !~%")
-   ))
+      (format t "Vous n'avez pas la bonne solution! Trouvez votre erreur pour gagner !~%")))
 
 
 ;;; Méthodes aléatoires ;;;
@@ -230,7 +274,7 @@
     (delete (aref grille x y) valeurs)))
 
 ; Retourner une liste de valeurs possible pour un créneau
-; Si la taille de la liste = 2 (c'est à dire 0 et un autre chiffre sont les seuls chiffres présent dans la liste
+; Si la taille de la liste = 2 (c'est à dire 0 et un autre chiffre sont les seuls chiffres présent dans la liste)
 ; on va mettre le chiffre dans le créneau tout de suite. 
 (defun IA-determiner-valeurs-possibles(grille x y)
   (setq *temp-vp* (copy-list *valeurs-possibles*))
@@ -238,19 +282,31 @@
   (IA-parcourir-rang grille y *temp-vp*)
   (IA-parcourir-colonne grille x *temp-vp*)
   (if (= 2 (list-length *temp-vp*))
-    (setf (aref grille x y) (second *temp-vp*))) 
+    (progn (setf (aref grille x y) (second *temp-vp*)))(setf *drapeau-solution-complexe* 0)) ; Solution est simple 
   *temp-vp*)
 
 ; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
 ; pour chaque créneau pour déterminer quel créneau est à remplir d'abord.
 (defun IA-determiner-solutions-possibles (grille)
   (defparameter *liste* '())
+  (setq *drapeau-solution-complexe* 1) ; 1 si la solution est complexe, 0 si elle est simple 
   (loop for x from 0 to 8 do 
     (loop for y from 0 to 8 do
       (if (zerop (aref grille x y))
          (setq *liste* (append *liste* (list (list (1- (length (IA-determiner-valeurs-possibles grille x y)))x y)))))))
-   (reverse (sort *liste* #'> :key #'car))
+   (setq *liste* (reverse (sort *liste* #'> :key #'car)))
    *liste*)
+
+; à regarder... 
+; retourner une liste de forme ((x y ... solutionsPossibles)(x2 y2 ... solutionsPossibles2)... grille)
+(defun backtrack(liste grille)
+  (defparameter *solutions-complexes* '())
+  (loop for x in liste do
+    (if (> (first x) 1)
+      (progn (setq *temp* (IA-determiner-valeurs-possibles grille (second x) (third x))) 
+        (setq *solutions-complexes* (append *solutions-complexes* (list (list (second x) (third x) (cdr *temp*)))))))) 
+  (setq *solutions-complexes* (append *solutions-complexes* (list grille)))
+*solutions-complexes*)
    
 ;;; LE JEU ;;;
 
