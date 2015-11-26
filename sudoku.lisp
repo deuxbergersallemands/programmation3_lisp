@@ -31,7 +31,8 @@
     (list 0 0 4 0 5 1 2 0 8)
     (list 0 0 3 8 0 6 4 0 0)))
 
-
+(defparameter *grille-est-complete* 0)
+(defparameter *regles-respectees* 0)
 
 ; 0 est là parceque delete ne va pas supprimer le premier élément dans la liste
 (defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6 7 8 9))
@@ -95,27 +96,47 @@
 
 ; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
 ; Initialiser toutes les variables du programme
+;(defun init-standalone (grille)
+ ; (defparameter *drapeau-solution-complexe* 1)
+  ;(defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
+ ; (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
+;  (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
+ ; (format t "Init complète")
+ ; (loop do
+ ;   (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
+ ;   ; difficile à implémenter
+  ;  (if (= *drapeau-solution-complexe* 1)
+   ;   (progn (setf *liste-back* (first (backtrack *solutions* *grille-solution*)))
+    ;         (setf *enregistrer-grille* (last *liste-back*))
+     ;        (setf *grille-solution* *enregistrer-grille*)
+      ;;       ;;(remplir-grille (second *liste-back*) (first *liste-back*) *grille-solution* (third *liste-back*))
+        ;     (loop for x in (cdr (cdr *liste-back*)) do 
+         ;      (remplir-grille (second *liste-back* (first *liste-back*) *grill-solution* x)
+          ;     (setq *solutions-test* IA-determiner-solutions-possibles)
+           ;;    (if (/= *drapeau-solution-complexe* 1) ; si la solution n'est plus complexe
+             ;    (format t "blahhhhhhhhhhhhhhhhhhh")))))(format t "PAS COMPLEXE")) 
+;    (valider-grille *grille-solution*)
+ ;   until (= *stop-boucle* 0)))
+
+
+; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
+; Initialiser toutes les variables du programme
+
+
 (defun init-standalone (grille)
-  (defparameter *drapeau-solution-complexe* 1)
+ ; (defparameter *drapeau-solution-complexe* 1)
   (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
-  (format t "Init complète")
+  (format t "Init complète. ")
   (loop do
+    (format t "boucle")
     (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
     ; difficile à implémenter
     (if (= *drapeau-solution-complexe* 1)
-      (progn (setf *liste-back* (first (backtrack *solutions* *grille-solution*)))
-             (setf *enregistrer-grille* (last *liste-back*))
-             (setf *grille-solution* *enregistrer-grille*)
-             ;;(remplir-grille (second *liste-back*) (first *liste-back*) *grille-solution* (third *liste-back*))
-             (loop for x in (cdr (cdr *liste-back*)) do 
-               (remplir-grille (second *liste-back* (first *liste-back*) *grill-solution* x)
-               (setq *solutions-test* IA-determiner-solutions-possibles)
-               (if (/= *drapeau-solution-complexe* 1) ; si la solution n'est plus complexe
-                 (format t "blahhhhhhhhhhhhhhhhhhh")))))(format t "PAS COMPLEXE")) 
-    (valider-grille *grille-solution*)
-    until (= *stop-boucle* 0)))
+      (setq *grille-solution* (a *grille-solution* (backtrack *solutions* *grille-solution*))))
+    (verifier-tous-cas-complets *grille-solution*)
+          until (= *grille-est-complete* 0)))
 
 
 
@@ -123,53 +144,90 @@
 
 
 
-
-
-; Vérifer que la grille respecte toutes les regles du jeu
+; Vérifer que la grille respecte toutes les regles du jeu (sans considerer les 0s)
 (defun valider-grille (grille)
   (valider-rangs-et-colonnes grille)
   (valider-carre grille))
 
 ; Vérifier que chaque chiffre 1-9 apparait uniquement une fois dans chaque carré
 (defun valider-carre(grille)
-  (parcourir-carre grille 0 0)
-  (parcourir-carre grille 0 3)
-  (parcourir-carre grille 0 6)
-  (parcourir-carre grille 3 0)
-  (parcourir-carre grille 3 3)
-  (parcourir-carre grille 3 6)
-  (parcourir-carre grille 6 0)
-  (parcourir-carre grille 6 3)
-  (parcourir-carre grille 6 6))
+  (setq *liste-carre* (list '(0 0) '(0 3) '(0 6) '(3 0) '(3 3) '(3 6) '(6 0) '(6 3) '(6 6)))
+  (loop for x in *liste-carre* do 
+    (if (= 0 *regles-respectees*)
+    (progn     (format t "itération ") (parcourir-carre grille (first x) (second x)))))) 
 
-(defun parcourir-carre  (grille x y)
-  (setq *valeurs* (copy-list *valeurs-possibles*))
-  (delete (aref grille x y) *valeurs*)
-  (delete (aref grille (1+ x) y) *valeurs*)
-  (delete (aref grille (+ x 2) y) *valeurs*)
-  (delete (aref grille x (1+ y)) *valeurs*)
-  (delete (aref grille (1+ x) (1+ y)) *valeurs*)
-  (delete (aref grille (+ x 2) (1+ y)) *valeurs*)
-  (delete (aref grille x (+ y 2)) *valeurs*)
-  (delete (aref grille (1+ x) (+  y 2)) *valeurs*)
-  (delete (aref grille (+ x 2) (+ y 2)) *valeurs*)
-  (if (/= (list-length *valeurs*) 1) (setq *stop-boucle* 1)))
+; Valider qu'il y a aucune repétition dans le carré (sans considerer les 0s)
+(defun parcourir-carre (grille x y) 
+  (setq *chiffres* '())
+  (setq *regles-respectees* 0)
+  (loop for a from 0 to 2 do
+    (loop for b from 0 to 2 do 
+      (if (not (zerop (aref grille (+ x a) (+ y b))))
+        (if (null (find (aref grille (+ x a) (+ y b)) *chiffres*)) ; Si le chiffre n'est pas dans la liste
+         (setq *chiffres* (append *chiffres* (list (aref grille (+ x a) (+ y b))))) 
+         (setq *regles-respectees* 1))))))
 
-; Valider qu'il y a aucune répétition dans les colonnes et les rangs
+
+
+;(defun parcourir-carre  (grille x y)
+;  (setq *valeurs* (copy-list *valeurs-possibles*))
+;  (delete (aref grille x y) *valeurs*)
+;  (delete (aref grille (1+ x) y) *valeurs*)
+ ; (delete (aref grille (+ x 2) y) *valeurs*)
+;;  (delete (aref grille x (1+ y)) *valeurs*)
+ ; (delete (aref grille (1+ x) (1+ y)) *valeurs*)
+ ; (delete (aref grille (+ x 2) (1+ y)) *valeurs*)
+ ; (delete (aref grille x (+ y 2)) *valeurs*)
+ ; (delete (aref grille (1+ x) (+  y 2)) *valeurs*)
+ ; (delete (aref grille (+ x 2) (+ y 2)) *valeurs*)
+;  (if (/= (list-length *valeurs*) 1) (progn (format t "CARRE NEST PAS BON")(setq *stop-boucle* (list x y)))))
+
+
+(defun a (grille liste) 
+  (loop for i from 0 to (list-length (cdr (cdr liste))) do
+    (remplir-grille  (second liste) (first liste) grille i)
+    (b grille))
+  (grille))
+
+(defun b (grille)
+  (setq *solutions* (IA-determiner-solutions-possibles grille))
+  (valider-grille grille)
+  (if (zerop *regles-respectees*)
+      (progn
+      (verifier-tous-cas-complets)
+      (if (zerop *grille-est-complete*)
+        (progn (format t "LA GRILLE EST COMPLETE") (return)))
+      (if (= 1 (first (first *solutions*)))
+        (b grille))
+      (if (>= 2 (first (first *solutions*)))
+        (a grille (backtrack *solutions* grille)))))
+      (return grille))
+
+
+(defun verifier-tous-cas-complets (grille)
+   (defparameter *grille-est-complete* 0)
+   (loop for x from 0 to 8 do
+     (loop for y from 0 to 8 do
+       (if (zerop (aref grille x y))
+        (setq *grille-est-complete* 1)))))
+
+; Valider qu'il y a aucune répétition dans les colonnes et les rangs (sans considerer les 0s)
 (defun valider-rangs-et-colonnes (grille)
-  (setq *stop-boucle* 0)
+  (defparameter *regles-respectees* 0)
   (setq *liste-chiffres* '())
   (setq *liste-chiffres-2* '())
 
   (loop for x from 0 to 8 do
     (loop for y from 0 to 8 do
-      (if (or (zerop (aref grille x y)) (find (aref grille x y) *liste-chiffres*) (find (aref grille y x) *liste-chiffres-2*))
-           (progn (setf *stop-boucle* 1)(return))
-           (progn (setf *liste-chiffres* (append *liste-chiffres* (list (aref grille x y)))) (setf *liste-chiffres-2* (append *liste-chiffres-2* (list (aref grille y x)))))))
-   (if (= *stop-boucle* 1) 
+      (if (and (not (zerop (aref grille x y))) (not (zerop (aref grille y x))))
+        (progn (format t " " (aref grille x y)) 
+        (if (or (find (aref grille x y) *liste-chiffres*) (find (aref grille y x) *liste-chiffres-2*))
+           (progn (setf *regles-respectees* 1)(return))
+           (progn (setf *liste-chiffres* (append *liste-chiffres* (list (aref grille x y)))) (setf *liste-chiffres-2* (append *liste-chiffres-2* (list (aref grille y x)))))))))
+   (if (= *regles-respectees* 1) 
      (return)
      (progn (setf *liste-chiffres-2* '())(setf *liste-chiffres* '()))))
-    (if (/= *stop-boucle* 1) grille))
+    (if (/= *regles-respectees* 1) grille))   ; si stop boucle = 1, il y a un problème
 
 
 (defun verifier-modele (x y modele) 
@@ -282,7 +340,7 @@
   (IA-parcourir-rang grille y *temp-vp*)
   (IA-parcourir-colonne grille x *temp-vp*)
   (if (= 2 (list-length *temp-vp*))
-    (progn (setf (aref grille x y) (second *temp-vp*)))(setf *drapeau-solution-complexe* 0)) ; Solution est simple 
+    (progn (setf (aref grille x y) (second *temp-vp*)))(progn (setf *drapeau-solution-complexe* 0))) ; Solution est simple 
   *temp-vp*)
 
 ; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
@@ -302,11 +360,11 @@
 (defun backtrack(liste grille)
   (defparameter *solutions-complexes* '())
   (loop for x in liste do
-    (if (> (first x) 1)
+    (if (and (> (first x) 1) (zerop (list-length *solutions-complexes*)))
       (progn (setq *temp* (IA-determiner-valeurs-possibles grille (second x) (third x))) 
-        (setq *solutions-complexes* (append *solutions-complexes* (list (list (second x) (third x) (cdr *temp*)))))))) 
-  (setq *solutions-complexes* (append *solutions-complexes* (list grille)))
-*solutions-complexes*)
+        (setq *solutions-complexes* (append *solutions-complexes* (list (second x) (third x))(cdr *temp*))))))*solutions-complexes*)
+
+
    
 ;;; LE JEU ;;;
 
