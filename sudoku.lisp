@@ -56,15 +56,16 @@
         (format t "| ~% ----------------------------------- ~%")))
 
 (defun demander-chiffre ()
-   (defparameter *drapeau-chif* 0)    
+   (defparameter *drapeau-chiffre* 0)  
    (loop do
       (format t "Choisissez un chiffre entre 1 et 9: ")
-      (defparameter *chiffre* (parse-integer (read-line)))
-      (if (and (> *chiffre* 0) (< *chiffre* 10))
-         (progn (setf *drapeau-chif* 0) 
-         *chiffre*)
-        (progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chif* 1)))
-     until (zerop *drapeau-chif*)))
+      (defparameter *chiffre* (char-code (char (read-line) 0)))	
+	(cond ((and (< *chiffre* 58) (> *chiffre* 48)) (progn (setf *drapeau-chiffre* 0) (setf *chiffre* (- *chiffre* 48))))  
+               ((and (< *chiffre* 0) (> *chiffre* 10)) (progn (setf *drapeau-chiffre* 0) (setf *chiffre* (- *chiffre* 1))))  
+	       (t (progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chiffre* 1))))
+     until (zerop *drapeau-chiffre*))
+    (clear-input))
+         
 
 
 (defun demander-colonne ()
@@ -75,21 +76,20 @@
 	 (cond ((and (< *colonne* 74) (> *colonne* 64)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 65))))  ; pour les majuscules
                ((and (< *colonne* 106) (> *colonne* 96)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 97))))  ;pour les minuscules
 	       (t (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1))))
-    until (zerop *drapeau-col*)))
+    until (zerop *drapeau-col*))
+    (clear-input))
          
 
 (defun demander-rang ()
    (defparameter *drapeau-rang* 0)  
    (loop do
       (format t "Choisissez un rang (1-9): ")
-      (defparameter *rang* (parse-integer (read-line)))
-      (if (and (> *rang* 0) (< *rang* 10))
-         (progn (setf *drapeau-rang* 0) 
-         (setf *rang* (- *rang* 1)))
-        (progn (format t "Ce rang n'est pas valable. ") (setf *drapeau-rang* 1)))
+      (defparameter *rang* (char-code (char (read-line) 0)))	
+	(cond ((and (< *rang* 58) (> *rang* 48)) (progn (setf *drapeau-rang* 0) (setf *rang* (- *rang* 48))))  
+               ((and (< *rang* 0) (> *rang* 10)) (progn (setf *drapeau-rang* 0) (setf *rang* (- *rang* 1))))  
+	       (t (progn (format t "Ce rang n'est pas valable. ") (setf *drapeau-rang* 1))))
      until (zerop *drapeau-rang*))
     (clear-input))
-
 
 
 
