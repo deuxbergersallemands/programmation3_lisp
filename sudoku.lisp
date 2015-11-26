@@ -124,7 +124,7 @@
 
 
 (defun init-standalone (grille)
- ; (defparameter *drapeau-solution-complexe* 1)
+  (defparameter *drapeau-solution-complexe* 1)
   (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
@@ -132,11 +132,12 @@
   (loop do
     (format t "boucle")
     (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
-    ; difficile à implémenter
-    (if (= *drapeau-solution-complexe* 1)
+    (verifier-tous-cas-complets *grille-solution*)
+    (format t "comp: ~a   grillecomp: ~a" *drapeau-solution-complexe* *grille-est-complete*)
+    (if (and (= *drapeau-solution-complexe* 1)(= 1 *grille-est-complete*))
       (setq *grille-solution* (a *grille-solution* (backtrack *solutions* *grille-solution*))))
     (verifier-tous-cas-complets *grille-solution*)
-          until (= *grille-est-complete* 0)))
+   until (= *grille-est-complete* 0))(format t "FINIFINIFINI"))
 
 
 
@@ -154,7 +155,7 @@
   (setq *liste-carre* (list '(0 0) '(0 3) '(0 6) '(3 0) '(3 3) '(3 6) '(6 0) '(6 3) '(6 6)))
   (loop for x in *liste-carre* do 
     (if (= 0 *regles-respectees*)
-    (progn     (format t "itération ") (parcourir-carre grille (first x) (second x)))))) 
+    (progn (parcourir-carre grille (first x) (second x)))))) 
 
 ; Valider qu'il y a aucune repétition dans le carré (sans considerer les 0s)
 (defun parcourir-carre (grille x y) 
@@ -184,7 +185,9 @@
 
 
 (defun a (grille liste) 
-  (loop for i from 0 to (list-length (cdr (cdr liste))) do
+  (afficher-grille grille)
+  (format t "Liste ~a" liste)
+  (loop for i in (cdr (cdr liste)) do
     (remplir-grille  (second liste) (first liste) grille i)
     (b grille))
   (grille))
@@ -194,9 +197,9 @@
   (valider-grille grille)
   (if (zerop *regles-respectees*)
       (progn
-      (verifier-tous-cas-complets)
+      (verifier-tous-cas-complets grille)
       (if (zerop *grille-est-complete*)
-        (progn (format t "LA GRILLE EST COMPLETE") (return)))
+        (progn (format t "LA GRILLE EST COMPLETE") (return grille)))
       (if (= 1 (first (first *solutions*)))
         (b grille))
       (if (>= 2 (first (first *solutions*)))
@@ -340,7 +343,7 @@
   (IA-parcourir-rang grille y *temp-vp*)
   (IA-parcourir-colonne grille x *temp-vp*)
   (if (= 2 (list-length *temp-vp*))
-    (progn (setf (aref grille x y) (second *temp-vp*)))(progn (setf *drapeau-solution-complexe* 0))) ; Solution est simple 
+    (progn (setf (aref grille x y) (second *temp-vp*))(setf *drapeau-solution-complexe* 0))) ; Solution est simple 
   *temp-vp*)
 
 ; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
@@ -407,11 +410,7 @@
 
 (defun sudoku-ia(grille-ia)
   (init-standalone grille-ia)
-  (loop do
-    (IA-determiner-solutions-possibles *grille-modifiable*)
-    (verifier-grille-rempli *grille-modifiable*)
-  until (zerop *drapeau*))
-  (afficher-grille *grille-modifiable*))
+  (afficher-grille *grille-solution*))
 
 
 
