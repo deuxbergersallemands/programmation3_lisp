@@ -31,6 +31,31 @@
     (list 0 0 4 0 5 1 2 0 8)
     (list 0 0 3 8 0 6 4 0 0)))
 
+
+
+(defparameter *grille-difficile*
+(list (list 0 0 5 8 4 0 0 2 0)
+    (list 2 0 0 6 0 0 0 5 0)
+    (list 6 8 1 0 0 9 0 0 0)
+    (list 4 0 0 0 0 0 1 0 0)
+    (list 8 0 2 0 0 0 7 0 4)
+    (list 0 0 7 0 0 0 0 0 2)
+    (list 0 0 0 9 0 0 3 1 6)
+    (list 0 2 0 0 0 5 0 0 9)
+    (list 0 3 0 0 8 1 2 0 0)))
+
+; ne marche pas
+(defparameter *grille-diabolique*
+(list (list 0 0 0 0 0 5 0 2 4)
+   (list 8 0 1 0 0 4 0 0 0)
+   (list 9 0 0 0 3 0 5 8 0)
+   (list 0 7 0 5 0 0 0 0 0)
+   (list 4 0 0 0 0 0 0 0 9)
+   (list 0 0 0 0 0 2 0 6 0)
+   (list 0 3 5 0 8 0 0 0 2)
+   (list 0 0 0 4 0 0 3 0 1)
+   (list 1 4 0 3 0 0 0 0 0)))
+
 (defparameter *grille-est-complete* 0)
 (defparameter *regles-respectees* 0)
 
@@ -192,6 +217,9 @@
     (b grille))
   (grille))
 
+
+;;;; AVEC LA GRILLE DIABOLIQUE Y A AUCUNE SOLUTION 
+
 (defun b (grille)
   (setq *solutions* (IA-determiner-solutions-possibles grille))
   (valider-grille grille)
@@ -200,10 +228,14 @@
       (verifier-tous-cas-complets grille)
       (if (zerop *grille-est-complete*)
         (progn (format t "LA GRILLE EST COMPLETE") (return grille)))
+      
+      (if (zerop (first (first *solutions*)))
+          (progn (format t "AUCUNE SOLUTION VALABLE... RETOURNER !")(return grille)))
       (if (= 1 (first (first *solutions*)))
         (b grille))
       (if (>= 2 (first (first *solutions*)))
-        (a grille (backtrack *solutions* grille)))))
+        (a grille (backtrack *solutions* grille)))
+      (format t "RECURSION !!! ")))
       (return grille))
 
 
