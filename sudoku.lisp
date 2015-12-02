@@ -1,38 +1,3 @@
-(defparameter *solution-liste* (list (list 2 4 5 1 7 9 3 8 6) (list 1 9 6 8 2 3 5 4 7) (list 8 3 7 4 6 5 2 1 9) (list 6 8 4 5 1 7 9 2 3) (list 3 2 9 6 8 4 7 5 1) (list 5 7 1 3 9 2 4 6 8) (list 4 6 2 9 3 8 1 7 5) (list 7 1 3 2 5 6 8 9 4) (list 9 5 8 7 4 1 6 3 2)))
-
-(defparameter *sol-fausse* (list (list 2 4 5 1 7 9 3 8 6) (list 2 9 6 8 1 3 5 4 7) (list 8 3 7 4 6 5 2 1 9) (list 6 8 4 5 1 7 9 2 3) (list 3 2 9 6 8 4 7 5 1) (list 5 7 1 3 9 2 4 6 8) (list 4 6 2 9 3 8 1 7 5) (list 7 1 3 2 5 6 8 9 4) (list 9 5 8 7 4 1 6 3 2)))
-
-
-
-(defparameter *solution-liste-presque* (list (list 0 4 5 1 7 9 3 8 6) (list 0 9 6 8 2 3 5 4 7) (list 8 3 7 4 6 5 2 1 9) (list 6 8 4 5 1 7 9 2 3) (list 3 2 9 6 8 4 7 5 1) (list 5 7 1 3 9 2 4 6 8) (list 4 6 2 9 3 8 1 7 5) (list 7 1 3 2 5 6 8 9 4) (list 9 5 8 7 4 1 6 3 2)))
-
-
-(defparameter *solution-avec-zero* (list (list 0 4 0 0 0 0 3 0 0) (list 0 0 6 8 2 0 0 4 7) (list 0 3 0 4 0 5 0 0 9) (list 0 8 4 0 0 7 9 0 0) (list 3 2 0 0 8 0 0 5 1) (list 0 0 1 3 0 0 4 6 0) (list 4 0 0 9 0 8 0 7 0) (list 7 1 0 0 5 6 8 0 0) (list 0 0 8 0 0 0 0 3 0) ))
-
-(defparameter *grille-de-la-prof*  ;;; Marche pas car aucun rang/colonne a un seul possibilité.... devrait mettre à jour la fonction pour considerer ça...
-(list (list 3 0 7 0 0 4 5 6 0)
-    (list 0 0 0 0 0 0 0 0 4)
-    (list 0 0 4 0 0 7 0 3 0)
-    (list 0 2 0 0 1 0 0 7 5)
-    (list 0 0 5 7 0 0 9 0 0)
-    (list 7 0 0 0 5 0 6 0 8)
-    (list 9 0 3 0 2 0 0 8 7)
-    (list 0 0 2 0 8 3 4 5 6)
-    (list 8 0 0 0 7 5 2 9 3)))
-
-(defparameter *grille-de-la-prof-2*
-(list (list 0 1 9 0 2 0 0 0 0)
-    (list 7 0 5 6 0 0 9 3 2)
-    (list 0 0 2 0 0 8 0 7 1)
-    (list 0 0 7 2 0 0 0 0 4)
-    (list 0 3 8 1 4 0 0 2 7)
-    (list 2 4 1 7 0 0 3 8 9)
-    (list 0 5 6 0 9 2 0 0 3)
-    (list 0 0 4 0 5 1 2 0 8)
-    (list 0 0 3 8 0 6 4 0 0)))
-
-
-
 (defparameter *grille-difficile*
 (list (list 0 0 5 8 4 0 0 2 0)
     (list 2 0 0 6 0 0 0 5 0)
@@ -58,15 +23,15 @@
 
 
 (defparameter *gd2*
-(list (list 0 0 0 0 0 5 0 2 4)
-   (list )
-   (list )
-   (list )
-   (list )
-   (list )
-   (list )
-   (list )
-   (list )))
+(list (list 0 9 7 2 1 0 0 0 0)
+   (list 0 0 0 8 4 0 5 0 0)
+   (list 8 0 0 0 0 6 0 0 0)
+   (list 0 8 5 0 9 0 0 0 6)
+   (list 0 0 4 0 0 0 2 0 0)
+   (list 6 0 0 0 8 0 7 3 0)
+   (list 0 0 0 4 0 0 0 0 8)
+   (list 0 0 1 0 3 8 0 0 0)
+   (list 0 0 0 0 7 1 3 5 0)))
 
 
 
@@ -133,28 +98,22 @@
      until (zerop *drapeau-rang*))
     (clear-input))
 
-
-
-; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
-; Initialiser toutes les variables du programme
-
-
 (defun init-standalone (grille)
   (defparameter *drapeau-solution-complexe* 1)
   (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
-  (format t "Init complète. ~%")
+  (setq *liste-grille* '())
+  
   (loop do
     ;(format t "boucle")
-    (setq *liste-grille* '())
     (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
     (verifier-tous-cas-complets *grille-solution*)
     (if (and (= *drapeau-solution-complexe* 1)(= 1 *grille-est-complete*))
       (progn (setq *liste-grilles* (append *liste-grilles*  (list (array-to-list *grille-solution*)))) 
-             (a *grille-solution* (backtrack *solutions* *grille-solution*))(format t "OUT OF RECURSION ~%")(afficher-grille *grille-solution*)))
+             (IA-tester-possibilities *grille-solution* (backtrack *solutions* *grille-solution*))))
     (verifier-tous-cas-complets *grille-solution*)
-   until (= *grille-est-complete* 0))(format t "FINIFINIFINI"))
+   until (= *grille-est-complete* 0)))
 
 
 
@@ -187,18 +146,6 @@
 
 
 
-;(defun parcourir-carre  (grille x y)
-;  (setq *valeurs* (copy-list *valeurs-possibles*))
-;  (delete (aref grille x y) *valeurs*)
-;  (delete (aref grille (1+ x) y) *valeurs*)
- ; (delete (aref grille (+ x 2) y) *valeurs*)
-;;  (delete (aref grille x (1+ y)) *valeurs*)
- ; (delete (aref grille (1+ x) (1+ y)) *valeurs*)
- ; (delete (aref grille (+ x 2) (1+ y)) *valeurs*)
- ; (delete (aref grille x (+ y 2)) *valeurs*)
- ; (delete (aref grille (1+ x) (+  y 2)) *valeurs*)
- ; (delete (aref grille (+ x 2) (+ y 2)) *valeurs*)
-;  (if (/= (list-length *valeurs*) 1) (progn (format t "CARRE NEST PAS BON")(setq *stop-boucle* (list x y)))))
  (defun list-to-array (list)
 	    (make-array (list (length list)
 			      (length (first list)))
@@ -210,48 +157,29 @@
 			       collect (aref array i j))))
 
 
-(defun a (grille liste) 
-  (format t "A-debut: taille est : ~a ~%" (list-length *liste-grilles*))
-
+(defun IA-tester-possibilities (grille liste) 
   (loop for i in (cdr (cdr liste)) do
     (setq *grille-actuelle* (list-to-array (first (last *liste-grilles*))))
-    (format t "BOUCLE-A; Haut")
-    ;(afficher-grille *grille-actuelle*)          
-    (format t "Donné la liste: ~a  , je vais placer le chiffre: ~a à ~a ~a ~%" liste i (first liste) (second liste))  
     (remplir-grille  (second liste) (first liste) *grille-actuelle* i)
-    (b *grille-actuelle*))
-   )
+    (b *grille-actuelle*)))
 
 
-; (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))
-
-;;;; AVEC LA GRILLE DIABOLIQUE Y A AUCUNE SOLUTION 
-
-(defun b (grille )
- (format t "B-debut: Taille : ~a ~%" (list-length *liste-grilles*)) 
+(defun IA-aller-plus-en-profondeur (grille )
   (afficher-grille grille)  
   (setq *liste-grilles* (append *liste-grilles* (list (array-to-list grille))))
   (setq *solutions* (IA-determiner-solutions-possibles grille))
-  (format t "Debut: First first solutions: ~a ~%" (first (first *solutions*)))
   (valider-grille grille)
-  (if (zerop *regles-respectees*) ; SINON POP
+  (if (zerop *regles-respectees*) 
       (progn
         (verifier-tous-cas-complets grille)
         (if (zerop *grille-est-complete*)
           (progn (format t "LA GRILLE EST COMPLETE") (setq *grille-solution* grille)))
-        (if (zerop (first (first *solutions*))) ; POP
-          (progn (format t "POP! ~%"))) ;;(setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))))
-        (if (= 1 (first (first *solutions*)))
-          (progn (format t "DIG-B ~%") (b grille)))
+        (if (= (first (first *solutions*)) 1)
+          (IA-aller-plus-en-profondeur grille))
         (if (>= (first (first *solutions*)) 2)
-          (progn (format t " 2+: First first solutions: ~a ~%" (first (first *solutions*)))(format t "PUSH ~%") (format t "DIG-A ~%")
-               (a grille (backtrack *solutions* grille)))))
-        ;(progn (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))(format t "B-fin: Pop. Taille est : ~a ~%" (list-length *liste-grilles*)))))
-      (progn (format t "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REGLES PAS RESPECTÉES ~%"))) ;(setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))))  ; si les regles ne sont pas respectées
-   (format t "BACKTRACK ~%")
+          (IA-tester-possibilities grille (backtrack *solutions* grille)))))
   (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* )))
       
-
 
 (defun verifier-tous-cas-complets (grille)
    (defparameter *grille-est-complete* 0)
@@ -462,5 +390,29 @@
 
 ;;; COMMENTAIRES GENERALES
 
-;;faire un nouveau mode o񠯮 sugg鳥 ࡬'utilisateur une liste de chiffre valide pour la case 
+;;;;; À faire....
+;; Organisation...
+; Variables Globales 
+; Méthodes Générales
+; Méthodes Aléatoires
+; Méthodes Intelligence-Artificielle
+; Méthodes obligatoires (init-standalone et l'autre, qui est toujours à implémenter)
 
+;; Style
+; Mettre tout les méthodes etc. en français
+; Formatter le code àfin de suivre les standards Lisp
+; 
+
+;; Extras (?)
+; Ajouter un nouveau mode qui suggère à l'utilisateur une liste de chiffre valide pour la case spécifiée (mode: Interactif avec aide d'une IA) 
+
+;; Validation
+; Vérifier que l'utilisateur ne peut pas 
+
+;; À Completer
+; Formatter la grille dans une manière plus jolie 
+
+;; TESTS
+; Vérifier que tous les tests passent avec le testeur de la prof
+; Tester à la main le mode aléatoire et le mode interactif
+; Vérifier combien de temps il faut pour éxécuter le mode IA 
