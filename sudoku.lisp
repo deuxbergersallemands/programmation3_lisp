@@ -44,7 +44,7 @@
     (list 0 2 0 0 0 5 0 0 9)
     (list 0 3 0 0 8 1 2 0 0)))
 
-; ne marche pas
+
 (defparameter *grille-diabolique*
 (list (list 0 0 0 0 0 5 0 2 4)
    (list 8 0 1 0 0 4 0 0 0)
@@ -55,6 +55,20 @@
    (list 0 3 5 0 8 0 0 0 2)
    (list 0 0 0 4 0 0 3 0 1)
    (list 1 4 0 3 0 0 0 0 0)))
+
+
+(defparameter *gd2*
+(list (list 0 0 0 0 0 5 0 2 4)
+   (list )
+   (list )
+   (list )
+   (list )
+   (list )
+   (list )
+   (list )
+   (list )))
+
+
 
 (defparameter *grille-est-complete* 0)
 (defparameter *regles-respectees* 0)
@@ -68,6 +82,9 @@
 (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents *solution-avec-zero*))
 
 (defparameter *grille-solution* (make-array '(9 9) :initial-contents *solution-liste*))
+
+  (defparameter *liste-grilles* '())  ; liste de grilles au cas où...
+
 
 ;;; FONCTIONS GÉNÉRALES ;;;
 
@@ -118,32 +135,6 @@
 
 
 
-
-; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
-; Initialiser toutes les variables du programme
-;(defun init-standalone (grille)
- ; (defparameter *drapeau-solution-complexe* 1)
-  ;(defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
- ; (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
-;  (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
- ; (format t "Init complète")
- ; (loop do
- ;   (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
- ;   ; difficile à implémenter
-  ;  (if (= *drapeau-solution-complexe* 1)
-   ;   (progn (setf *liste-back* (first (backtrack *solutions* *grille-solution*)))
-    ;         (setf *enregistrer-grille* (last *liste-back*))
-     ;        (setf *grille-solution* *enregistrer-grille*)
-      ;;       ;;(remplir-grille (second *liste-back*) (first *liste-back*) *grille-solution* (third *liste-back*))
-        ;     (loop for x in (cdr (cdr *liste-back*)) do 
-         ;      (remplir-grille (second *liste-back* (first *liste-back*) *grill-solution* x)
-          ;     (setq *solutions-test* IA-determiner-solutions-possibles)
-           ;;    (if (/= *drapeau-solution-complexe* 1) ; si la solution n'est plus complexe
-             ;    (format t "blahhhhhhhhhhhhhhhhhhh")))))(format t "PAS COMPLEXE")) 
-;    (valider-grille *grille-solution*)
- ;   until (= *stop-boucle* 0)))
-
-
 ; HARDCODÉ POUR L'INSTANT..... MAKE-ARRAY '(TAILLE DE GRILLE) ?
 ; Initialiser toutes les variables du programme
 
@@ -153,14 +144,15 @@
   (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
   (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
-  (format t "Init complète. ")
+  (format t "Init complète. ~%")
   (loop do
-    (format t "boucle")
+    ;(format t "boucle")
+    (setq *liste-grille* '())
     (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
     (verifier-tous-cas-complets *grille-solution*)
-    (format t "comp: ~a   grillecomp: ~a" *drapeau-solution-complexe* *grille-est-complete*)
     (if (and (= *drapeau-solution-complexe* 1)(= 1 *grille-est-complete*))
-      (setq *grille-solution* (a *grille-solution* (backtrack *solutions* *grille-solution*))))
+      (progn (setq *liste-grilles* (append *liste-grilles*  (list (array-to-list *grille-solution*)))) 
+             (a *grille-solution* (backtrack *solutions* *grille-solution*))(format t "OUT OF RECURSION ~%")(afficher-grille *grille-solution*)))
     (verifier-tous-cas-complets *grille-solution*)
    until (= *grille-est-complete* 0))(format t "FINIFINIFINI"))
 
@@ -207,36 +199,58 @@
  ; (delete (aref grille (1+ x) (+  y 2)) *valeurs*)
  ; (delete (aref grille (+ x 2) (+ y 2)) *valeurs*)
 ;  (if (/= (list-length *valeurs*) 1) (progn (format t "CARRE NEST PAS BON")(setq *stop-boucle* (list x y)))))
+ (defun list-to-array (list)
+	    (make-array (list (length list)
+			      (length (first list)))
+			:initial-contents list))
+
+(defun array-to-list (array)
+	   (loop for i below (array-dimension array 0)
+		 collect (loop for j below (array-dimension array 1)
+			       collect (aref array i j))))
 
 
 (defun a (grille liste) 
-  (afficher-grille grille)
-  (format t "Liste ~a" liste)
-  (loop for i in (cdr (cdr liste)) do
-    (remplir-grille  (second liste) (first liste) grille i)
-    (b grille))
-  (grille))
+  (format t "A-debut: taille est : ~a ~%" (list-length *liste-grilles*))
 
+  (loop for i in (cdr (cdr liste)) do
+    (setq *grille-actuelle* (list-to-array (first (last *liste-grilles*))))
+    (format t "BOUCLE-A; Haut")
+    ;(afficher-grille *grille-actuelle*)          
+    (format t "Donné la liste: ~a  , je vais placer le chiffre: ~a à ~a ~a ~%" liste i (first liste) (second liste))  
+    (remplir-grille  (second liste) (first liste) *grille-actuelle* i)
+    (b *grille-actuelle*))
+   )
+
+
+; (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))
 
 ;;;; AVEC LA GRILLE DIABOLIQUE Y A AUCUNE SOLUTION 
 
-(defun b (grille)
+(defun b (grille )
+ (format t "B-debut: Taille : ~a ~%" (list-length *liste-grilles*)) 
+  (afficher-grille grille)  
+  (setq *liste-grilles* (append *liste-grilles* (list (array-to-list grille))))
   (setq *solutions* (IA-determiner-solutions-possibles grille))
+  (format t "Debut: First first solutions: ~a ~%" (first (first *solutions*)))
   (valider-grille grille)
-  (if (zerop *regles-respectees*)
+  (if (zerop *regles-respectees*) ; SINON POP
       (progn
-      (verifier-tous-cas-complets grille)
-      (if (zerop *grille-est-complete*)
-        (progn (format t "LA GRILLE EST COMPLETE") (return grille)))
+        (verifier-tous-cas-complets grille)
+        (if (zerop *grille-est-complete*)
+          (progn (format t "LA GRILLE EST COMPLETE") (setq *grille-solution* grille)))
+        (if (zerop (first (first *solutions*))) ; POP
+          (progn (format t "POP! ~%"))) ;;(setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))))
+        (if (= 1 (first (first *solutions*)))
+          (progn (format t "DIG-B ~%") (b grille)))
+        (if (>= (first (first *solutions*)) 2)
+          (progn (format t " 2+: First first solutions: ~a ~%" (first (first *solutions*)))(format t "PUSH ~%") (format t "DIG-A ~%")
+               (a grille (backtrack *solutions* grille)))))
+        ;(progn (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))(format t "B-fin: Pop. Taille est : ~a ~%" (list-length *liste-grilles*)))))
+      (progn (format t "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REGLES PAS RESPECTÉES ~%"))) ;(setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* ))))  ; si les regles ne sont pas respectées
+   (format t "BACKTRACK ~%")
+  (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* )))
       
-      (if (zerop (first (first *solutions*)))
-          (progn (format t "AUCUNE SOLUTION VALABLE... RETOURNER !")(return grille)))
-      (if (= 1 (first (first *solutions*)))
-        (b grille))
-      (if (>= 2 (first (first *solutions*)))
-        (a grille (backtrack *solutions* grille)))
-      (format t "RECURSION !!! ")))
-      (return grille))
 
 
 (defun verifier-tous-cas-complets (grille)
