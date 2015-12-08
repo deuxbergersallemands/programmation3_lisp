@@ -42,6 +42,9 @@
   (list 0 0 2 0)
   (list 0 1 4 3)))
 
+(defparameter *un* 
+ (list (list 0)))
+
 ;;; VARIABLES GLOBALES ;;;
 
 ; Drapeau pour valider si la grille est complete 
@@ -339,12 +342,13 @@
 (defun init-standalone (grille)
   (vider-toute-variable)
   (defparameter *drapeau-solution-complexe* 1)
-  (determiner-taille-grille grille)
+  (determiner-taille-grille (convertir-tableau-liste grille))
   (determiner-valeurs-possibles)
   (creer-liste-carre)
-  (defparameter *grille-modele* (make-array (list *taille-grille* *taille-grille*) :initial-contents grille))
-  (defparameter *grille-modifiable* (make-array (list *taille-grille* *taille-grille*) :initial-contents grille))
-  (defparameter *grille-solution* (make-array (list *taille-grille* *taille-grille*) :initial-contents grille))
+  (defparameter *grille-modele* grille)
+  (defparameter *grille-modifiable* grille)
+  (defparameter *grille-solution* grille)
+
   (setq *liste-grille* '())
   
   (loop do
@@ -357,7 +361,15 @@
    until (= *grille-est-complete* 0)))
 
 ; ...... franchment je comprends toujours pas le but cette méthode...
-(defun main-standalone())
+(defun main-standalone()
+  (setq *liste* '())
+  ;;(demander-rang)
+  ;(demander-colonne)
+  ;(demander-chiffre)
+  ;(remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*) 
+    (setq *liste* (list *rang* *colonne* *chiffre*)); ajouter trucs à la liste
+  *liste*) 
+  
 
    
 ;;; LE JEU ;;;
