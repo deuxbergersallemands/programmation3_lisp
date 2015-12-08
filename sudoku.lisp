@@ -1,5 +1,6 @@
 ;;; À Supprimer ;;;
 
+
 (defparameter *grille-difficile*
 (list (list 0 0 5 8 4 0 0 2 0)
     (list 2 0 0 6 0 0 0 5 0)
@@ -35,6 +36,12 @@
    (list 0 0 1 0 3 8 0 0 0)
    (list 0 0 0 0 7 1 3 5 0)))
 
+(defparameter *quatre*
+(list (list 3 4 1 0)
+  (list 0 2 0 0)
+  (list 0 0 2 0)
+  (list 0 1 4 3)))
+
 ;;; VARIABLES GLOBALES ;;;
 
 ; Drapeau pour valider si la grille est complete 
@@ -42,12 +49,17 @@
 ; Drapeau pour valider si les regles ont été respecté
 (defparameter *regles-respectees* 0)
 ; 0 est là car delete ne va pas supprimer le premier élément dans la liste
-(defparameter *valeurs-possibles* (list 0 1 2 3 4 5 6 7 8 9))
+; À remplir lors d'exécution 
+(defparameter *valeurs-possibles* '())
 ; Modèle pour véfier que l'utilisateur n'écrase pas les chiffres donné au début du jeu.  
 (defparameter *liste-grilles* '())  ; liste de grilles au cas où...
-
+; Taille de la grille
+(defparameter *taille-grille* 0) 
+; Liste de la première case de chaque carré
+(defparameter *liste-premiere-case* '())
 
 ;;; MÉTHODES GÉNÉRALES ;;; 
+
 
 ; Afficher la grille
 (defun afficher-grille (grille)
@@ -107,7 +119,15 @@
       (if (zerop *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
         (format t "Vous ne pouvez modifier cette cellule. ~%"))) 
-      
+
+; Determiner la taille de la grille
+(defun determiner-taille-grille (grille)
+  (setq *taille-grille* (list-length (first grille))))      
+
+; Determiner toutes les valeurs possibles dans la grille
+(defun determiner-valeurs-possibles ()
+  (loop for y from 0 to *taille-grille* do 
+   (setq *valeurs-possibles* (append *valeurs-possibles*  (list y)))))
 
 
 ;;; MÉTHODES DE VÉRIFICATION/VALIDATION ;;;
@@ -120,8 +140,8 @@
 ; Vérifier que aucun cas n'est pas vide
 (defun verifier-toute-case-complete (grille)
    (defparameter *grille-est-complete* 0)
-   (loop for x from 0 to 8 do
-     (loop for y from 0 to 8 do
+   (loop for x from 0 to (1- *taille-grille*) do
+     (loop for y from 0 to (1- *taille-grille*) do
        (if (zerop (aref grille x y))
         (setq *grille-est-complete* 1)))))
 
@@ -134,9 +154,9 @@
 ;fonction pour savoir si ,une fois la grille remplie , elle est gagnante ou pas
 (defun verifier-solution(grille solution)
    (defparameter *drapeau* 0)
-   (loop for y from 0 to 8 do
+   (loop for y from 0 to (1- *taille-grille*) do
      (if (/= *drapeau* 1)
-      (loop for x from 0 to 8 do
+      (loop for x from 0 to (1- *taille-grille*) do
          (if (/= *drapeau* 1)
             (if (/= (aref grille x y) (aref solution x y))
                (setf *drapeau* 1))))))
@@ -148,10 +168,16 @@
 
 ;;; MÉTHODES AUXILIAIRES ;;;
 
+; Créer une liste composée des cordonnes de la case la plus en haut, à gauche pour chaque carré
+(defun creer-liste-carre ()
+  (loop for y from 0 to (1- (isqrt *taille-grille*)) do
+    (loop for x from 0 to (1- (isqrt *taille-grille*)) do  
+      (setq *liste-premiere-case* (append *liste-premiere-case* (list (list (* (isqrt *taille-grille*) x) (* (isqrt *taille-grille*) y))))))))
+
+
 ; Vérifier que chaque chiffre 1-9 apparait uniquement une fois dans chaque carré
 (defun valider-carre(grille)
-  (setq *liste-carre* (list '(0 0) '(0 3) '(0 6) '(3 0) '(3 3) '(3 6) '(6 0) '(6 3) '(6 6)))
-  (loop for x in *liste-carre* do 
+  (loop for x in *liste-premiere-case* do 
     (if (= 0 *regles-respectees*)
     (progn (parcourir-carre grille (first x) (second x)))))) 
 
@@ -159,8 +185,8 @@
 (defun parcourir-carre (grille x y) 
   (setq *chiffres* '())
   (setq *regles-respectees* 0)
-  (loop for a from 0 to 2 do
-    (loop for b from 0 to 2 do 
+  (loop for a from 0 to (1- (isqrt *taille-grille*)) do
+    (loop for b from 0 to (1- (isqrt *taille-grille*)) do 
       (if (not (zerop (aref grille (+ x a) (+ y b))))
         (if (null (find (aref grille (+ x a) (+ y b)) *chiffres*)) ; Si le chiffre n'est pas dans la liste
          (setq *chiffres* (append *chiffres* (list (aref grille (+ x a) (+ y b))))) 
@@ -172,20 +198,20 @@
 	    (make-array (list (length liste)
 			      (length (first liste)))
 			:initial-contents liste))
+
 ; Convertir tableau en liste
 (defun convertir-tableau-liste (tableau)
 	   (loop for i below (array-dimension tableau 0)
 		 collect (loop for j below (array-dimension tableau 1)
 			       collect (aref tableau i j))))
 
-
 ; Valider qu'il y a aucune répétition dans les colonnes et les rangs (sans considerer les 0s)
 (defun valider-rangs-et-colonnes (grille)
   (defparameter *regles-respectees* 0)
   (setq *liste-chiffres* '())
   (setq *liste-chiffres-2* '())
-  (loop for x from 0 to 8 do
-    (loop for y from 0 to 8 do
+  (loop for x from 0 to (1- *taille-grille*) do
+    (loop for y from 0 to (1- *taille-grille*) do
       (if (and (not (zerop (aref grille x y))) (not (zerop (aref grille y x))))
         (progn (format t " " (aref grille x y)) 
         (if (or (find (aref grille x y) *liste-chiffres*) (find (aref grille y x) *liste-chiffres-2*))
@@ -194,61 +220,49 @@
    (if (= *regles-respectees* 1) 
      (return)
      (progn (setf *liste-chiffres-2* '())(setf *liste-chiffres* '()))))
-    (if (/= *regles-respectees* 1) grille))   ; si stop boucle = 1, il y a un problème
+    (if (/= *regles-respectees* 1) grille))  
+
+
+
+
 
 ;;; Méthodes aléatoires ;;;
 
 (defun generer-variables-aleatoires (modele)
   (setf *drap-aleat* 0)
   (loop do 
-    (defparameter *colonne* (random 9)) 
-    (defparameter *rang* (random 9))
+    (defparameter *colonne* (random *taille-grille*)) 
+    (defparameter *rang* (random *taille-grille*))
     (if (zerop (aref modele *colonne* *rang*))
       (setf *drap-aleat* 1)) 
   until (= *drap-aleat* 1)) 
-  (defparameter *chiffre* (1+ (random 9)))); Chiffre entre 1 et 9
+  (defparameter *chiffre* (1+ (random *taille-grille*)))); Chiffre entre 1 et 9
   
 
 
 
 ;;; Methodes intelligence-artificielle ;;;
 
- 
-; Selectionner un carré à parcourir
-(defun IA-choisir-chiffre(grille x y valeurs)
-  (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 0 0 valeurs))
-  (if (and (and (>= x 0) (< x 3)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 0 3 valeurs))
-  (if (and (and (>= x 0) (< x 3)) (and (> y 5) (< y 9))) (IA-parcourir-carre grille 0 6 valeurs))
-  (if (and (and (> x 2) (< x 6)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 3 0 valeurs))
-  (if (and (and (> x 2) (< x 6)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 3 3 valeurs))
-  (if (and (and (> x 2) (< x 6)) (and (> y 5) (< y 9))) (IA-parcourir-carre grille 3 6 valeurs))
-  (if (and (and (> x 5) (< x 9)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 6 0 valeurs))
-  (if (and (and (> x 5) (< x 9)) (and (> y 2) (< y 6))) (IA-parcourir-carre grille 6 3 valeurs))
-  (if (and (and (> x 5) (< x 9)) (and (> y 5) (< y 9))) (IA-parcourir-carre grille 6 6 valeurs))
-  valeurs)
 
+(defun IA-choisir-chiffre (grille x y valeurs)
+  (loop for (a b) in *liste-premiere-case* do 
+   (if (and (and (>= x a) (< x (+ a (isqrt *taille-grille*)))) (and (>= y b) (< y (+ b (isqrt *taille-grille*))))) 
+     (IA-parcourir-carre grille a b valeurs))) valeurs)
 
-; Enlever les valeurs trouvé dans le carré
 (defun IA-parcourir-carre (grille x y valeurs) 
-  (delete (aref grille x y) valeurs)
-  (delete (aref grille (1+ x) y) valeurs)
-  (delete (aref grille (+ x 2) y) valeurs)
-  (delete (aref grille x (1+ y)) valeurs)
-  (delete (aref grille (1+ x) (1+ y)) valeurs)
-  (delete (aref grille (+ x 2) (1+ y)) valeurs)
-  (delete (aref grille x (+ y 2)) valeurs)
-  (delete (aref grille (1+ x) (+  y 2)) valeurs)
-  (delete (aref grille (+ x 2) (+ y 2)) valeurs)
+  (loop for a from x to (+ (1- (isqrt *taille-grille*)) x) do
+    (loop for b from y to (+ (1- (isqrt *taille-grille*)) y) do 
+       (delete (aref grille a b) valeurs)))
   valeurs)
 
 ; Enlever les valeurs trouvé dans la colonne
 (defun IA-parcourir-colonne (grille x valeurs)
-  (loop for y from 0 to 8 do
+  (loop for y from 0 to (1- *taille-grille*) do
     (delete (aref grille x y) valeurs)))
 
 ; Enlever les valeurs trouvé dans le rang
 (defun IA-parcourir-rang (grille y valeurs)
-  (loop for x from 0 to 8 do 
+  (loop for x from 0 to (1- *taille-grille*) do 
     (delete (aref grille x y) valeurs)))
 
 ; Retourner une liste de valeurs possible pour un créneau
@@ -268,8 +282,8 @@
 (defun IA-determiner-solutions-possibles (grille)
   (defparameter *liste* '())
   (setq *drapeau-solution-complexe* 1) ; 1 si la solution est complexe, 0 si elle est simple 
-  (loop for x from 0 to 8 do 
-    (loop for y from 0 to 8 do
+  (loop for x from 0 to (1- *taille-grille*) do 
+    (loop for y from 0 to (1- *taille-grille*) do
       (if (zerop (aref grille x y))
          (setq *liste* (append *liste* (list (list (1- (length (IA-determiner-valeurs-possibles grille x y)))x y)))))))
    (setq *liste* (reverse (sort *liste* #'> :key #'car)))
@@ -309,14 +323,28 @@
   (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* )))
 
 
+
+(defun vider-toute-variable()
+  (defparameter *grille-est-complete* 0)
+  (defparameter *regles-respectees* 0)
+  (defparameter *valeurs-possibles* '())
+  (defparameter *liste-grilles* '())  
+  (defparameter *taille-grille* 0)
+  (defparameter *liste-premiere-case* '()))
+ 
+
 ;;; METHODES OBLIGATOIRES ;;;
 
 ; Initialiser toutes les variables et determiner la solution de la grille fournie.
 (defun init-standalone (grille)
+  (vider-toute-variable)
   (defparameter *drapeau-solution-complexe* 1)
-  (defparameter *grille-modele* (make-array '(9 9) :initial-contents grille))
-  (defparameter *grille-modifiable* (make-array '(9 9) :initial-contents grille))
-  (defparameter *grille-solution* (make-array '(9 9) :initial-contents grille))
+  (determiner-taille-grille grille)
+  (determiner-valeurs-possibles)
+  (creer-liste-carre)
+  (defparameter *grille-modele* (make-array (list *taille-grille* *taille-grille*) :initial-contents grille))
+  (defparameter *grille-modifiable* (make-array (list *taille-grille* *taille-grille*) :initial-contents grille))
+  (defparameter *grille-solution* (make-array (list *taille-grille* *taille-grille*) :initial-contents grille))
   (setq *liste-grille* '())
   
   (loop do
