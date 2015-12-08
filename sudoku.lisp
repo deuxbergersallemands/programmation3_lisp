@@ -72,7 +72,6 @@
       (format t "Choisissez un chiffre entre 1 et 9: ")
       (defparameter *chiffre* (char-code (char (read-line) 0)))	
 	(cond ((and (< *chiffre* 58) (> *chiffre* 48)) (progn (setf *drapeau-chiffre* 0) (setf *chiffre* (- *chiffre* 48))))  
-               ((and (< *chiffre* 0) (> *chiffre* 10)) (progn (setf *drapeau-chiffre* 0) (setf *chiffre* (- *chiffre* 1))))  
 	       (t (progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chiffre* 1))))
      until (zerop *drapeau-chiffre*))
     (clear-input))
@@ -96,8 +95,7 @@
    (loop do
       (format t "Choisissez un rang (1-9): ")
       (defparameter *rang* (char-code (char (read-line) 0)))	
-	(cond ((and (< *rang* 58) (> *rang* 48)) (progn (setf *drapeau-rang* 0) (setf *rang* (- *rang* 48))))  
-               ((and (< *rang* 0) (> *rang* 10)) (progn (setf *drapeau-rang* 0) (setf *rang* (- *rang* 1))))  
+	(cond ((and (< *rang* 58) (> *rang* 48)) (progn (setf *drapeau-rang* 0) (setf *rang* (- *rang* 49))))  
 	       (t (progn (format t "Ce rang n'est pas valable. ") (setf *drapeau-rang* 1))))
      until (zerop *drapeau-rang*))
     (clear-input))
@@ -120,7 +118,7 @@
   (valider-carre grille))
 
 ; Vérifier que aucun cas n'est pas vide
-(defun verifier-tous-cas-complets (grille)
+(defun verifier-toute-case-complete (grille)
    (defparameter *grille-est-complete* 0)
    (loop for x from 0 to 8 do
      (loop for y from 0 to 8 do
@@ -198,24 +196,6 @@
      (progn (setf *liste-chiffres-2* '())(setf *liste-chiffres* '()))))
     (if (/= *regles-respectees* 1) grille))   ; si stop boucle = 1, il y a un problème
 
-
-; fontion appelé à chaque tour pour savoir si la grille est fini ou pas      
-(defun verifier-grille-remplie (grille)
-   (defparameter *drapeau-rempli* 0)
-    (loop for y from 0 to 8 do
-     (if (/= *drapeau-rempli* 1)
-      (loop for x from 0 to 8 do
-         (if (/= *drapeau-rempli* 1)
-            (if (zerop (aref grille x y) )
-               (setf *drapeau-rempli* 1)))))
-	       )
-   (if (zerop *drapeau-rempli* )
-	(progn(format t "La grille est entièrement remplie !~%") (verifier-solution grille *grille-solution*))
-       (format t "La grille n'est pas entièrement remplie !~%")))
-
-  
-      
-
 ;;; Méthodes aléatoires ;;;
 
 (defun generer-variables-aleatoires (modele)
@@ -223,7 +203,6 @@
   (loop do 
     (defparameter *colonne* (random 9)) 
     (defparameter *rang* (random 9))
-    (format t "col: ~a et ran: ~a !!!" *colonne* *rang*)
     (if (zerop (aref modele *colonne* *rang*))
       (setf *drap-aleat* 1)) 
   until (= *drap-aleat* 1)) 
@@ -235,7 +214,6 @@
 ;;; Methodes intelligence-artificielle ;;;
 
  
-;;;;;;;;;;;;;;;;;;;;; CETTE METHODE N'EST PAS BIEN ECRITE ;;;;;;;;;;;;;;;;;;;;;;;
 ; Selectionner un carré à parcourir
 (defun IA-choisir-chiffre(grille x y valeurs)
   (if (and (and (>= x 0) (< x 3)) (and (>= y 0) (< y 3))) (IA-parcourir-carre grille 0 0 valeurs))
@@ -321,7 +299,7 @@
   (valider-grille grille)
   (if (zerop *regles-respectees*) 
       (progn
-        (verifier-tous-cas-complets grille)
+        (verifier-toute-case-complete grille)
         (if (zerop *grille-est-complete*)
           (setq *grille-solution* grille)
           (progn (if (= (first (first *solutions*)) 1)
@@ -343,11 +321,11 @@
   
   (loop do
     (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
-    (verifier-tous-cas-complets *grille-solution*)
+    (verifier-toute-case-complete *grille-solution*)
     (if (and (= *drapeau-solution-complexe* 1)(= 1 *grille-est-complete*))
       (progn (setq *liste-grilles* (append *liste-grilles*  (list (convertir-tableau-liste *grille-solution*)))) 
              (IA-tester-possibilities *grille-solution* (backtrack *solutions* *grille-solution*))))
-    (verifier-tous-cas-complets *grille-solution*)
+    (verifier-toute-case-complete *grille-solution*)
    until (= *grille-est-complete* 0)))
 
 ; ...... franchment je comprends toujours pas le but cette méthode...
@@ -360,41 +338,43 @@
    (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
    (defparameter *drapeau* 1)
    (loop do 
+      (init-standalone grille)  
       (format t "Choisissez votre mode : ~%")
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour résoudre la grille fournie avec une Intelligence Artificielle : ")
       (defparameter *jeu* (read-line))
       (cond 
-         ((string-equal *jeu* "interactif") (sudoku-interactive grille))
-         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire grille))
-         ((string-equal *jeu* "ia") (sudoku-ia grille) )
-         (t (format t "Cet option n'existe pas.  Veuillez réessayer. ~%")))
+         ((string-equal *jeu* "interactif") (sudoku-interactive))
+         ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
+         ((string-equal *jeu* "ia") (sudoku-ia) )
+         (t (format t "Cette option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
-(defun sudoku-interactive(grille-interact)
-   (init-standalone grille-interact)
+(defun sudoku-interactive()
    (loop do 
       (afficher-grille *grille-modifiable*)
       (demander-rang)
       (demander-colonne)
       (demander-chiffre)
       (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
-      (verifier-grille-remplie *grille-modifiable*)
+      (verifier-toute-case-complete *grille-modifiable*) 
+      (if (zerop *grille-est-complete*)
+        (verifier-solution grille *grille-solution*))
     until (zerop *drapeau*)))
 
-(defun sudoku-aleatoire(grille-aleat)
-  (init-standalone grille-aleat)
+(defun sudoku-aleatoire()
   (afficher-grille *grille-modifiable*)
   (format t "Veuillez patienter -- la version aléatoire peut prendre du temps à compléter. ~%")
   (loop do
      (generer-variables-aleatoires *grille-modele*)
      (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
-     (verifier-grille-remplie *grille-modifiable*)
+     (verifier-toute-case-complete *grille-modifiable*) 
+     (if (zerop *grille-est-complete*)
+       (verifier-solution grille *grille-solution*))
   until (zerop *drapeau*))
   (afficher-grille *grille-modifiable*))
 
 
-(defun sudoku-ia(grille-ia)
-  (init-standalone grille-ia)
+(defun sudoku-ia()
   (afficher-grille *grille-solution*)
   (format t "~% Voila ! Notre Intelligence Artificielle a résolu la grille que vous avez fournie. ~%"))
 
