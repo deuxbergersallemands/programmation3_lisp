@@ -1,0 +1,66 @@
+Noms: Troy CAMPBELL (A3), Manon PINTAULT (A3), et Ali El Idrissi (A2)
+Cours: Programmation 3
+Chargée: Damien Clergeaud
+
+
+/// Comment Jouer ///
+
+ - Manon
+
+/// Qu'est-ce qui se passe derrière le jeu? ///
+
+  Après avoir lancé sudoku avec une grille, on fait trois copies de la grille fournie.  Une est stockée dans une
+  variable qu'on utilise comme référence pour savoir quelles cases sont modifiables.  On utilise la deuxième copie 
+  pour stocker les valeurs fournies par l'utilisateur. La dernière grille est résolue par notre intelligence artificielle.
+
+  Si l'utilisateur choisit le mode 'ia', tout simplement on affiche la grille que l'utilisateur a fournie.  Si 
+  l'utilisateur choisit un de deux autres modes, lorsque la grille modifiable est complète / "100% remplie" on vérifie 
+  si elle est remplie comme la solution que notre IA a déterminée.     
+
+  On analyse la grille fournie pour déterminer dynamiquement quelles valeurs sont possibles (e.g. une grille 4x4 peut 
+  accepter des valeurs entre 1 et 4, malgré  
+
+   TRISTAN
+
+/// Méthode Intelligence Artificielle ///
+ 
+ - Tristan
+
+
+
+/// Fonctionalitées ///
+
+ - Notre sudoku accept toute grille des tailles suivantes (1x1, 4x4, 9x9)
+ - L'utilisateur peut choisir entre trois modes: interactif, aléatoire, et intelligence artificielle
+ - Après avoir joué un des modes au-dessus, un jouer peut sélectionner un autre mode sans relancer le programme 
+
+
+/// Remarques Importantes ///
+
+ - Le mode aléatoire ne va PAS forcement arriver à résoudre la grille.  À chaque tour, notre algorithme 
+   génère un ensemble qui représente une case dans la grille.  Si on détermine que la case est déjà remplie 
+   dans le modèle, on regénère l'ensemble jusqu'à ce qu'elle soit valide. Aprèes, on génère un chiffre aléatoire
+   et on écrase la case spécifiée (si nécessaire) avec ce chiffre.  
+
+
+/// Division du travail ///
+
+Troy CAMPBELL s'est occupé du:
+   - Implémentation du mode interactif
+   - Implémentation du mode aléatoire
+   - Implémentation du mode IA
+   - Algorithmique des fonctions de l'IA
+   - Réusinage du code
+
+Manon Pintault s'est occupée du: 
+   - Implémentation du mode interactif
+   - Implémentation du mode IA
+   - Implémentation de la méthode d'affichage des grilles
+   - Algorithmique des fonctions de l'IA
+   - Réusinage du code
+
+Ali El Idrissi s'est occupé du: 
+   - Algorithmique des fonctions de l'IA
+   - Implémentation de la méthode d'affichage des grilles
+   - Implémentation de Main Standalone
+   - Implémentation des méthodes qui accèdent aux tableaux 

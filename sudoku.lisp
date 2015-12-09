@@ -61,6 +61,11 @@
 ; Liste de la première case de chaque carré
 (defparameter *liste-premiere-case* '())
 
+
+;(defparameter *rang* 0)
+;(defparameter *colonne* 0)
+;(defparameter *chiffre* 0)
+
 ;;; MÉTHODES GÉNÉRALES ;;; 
 
 
@@ -171,14 +176,14 @@
 
 ;;; MÉTHODES AUXILIAIRES ;;;
 
-; Créer une liste composée des cordonnes de la case la plus en haut, à gauche pour chaque carré
+; Créer une liste composée des cordonnes de la case la plus en haut à gauche pour chaque carré
 (defun creer-liste-carre ()
   (loop for y from 0 to (1- (isqrt *taille-grille*)) do
     (loop for x from 0 to (1- (isqrt *taille-grille*)) do  
       (setq *liste-premiere-case* (append *liste-premiere-case* (list (list (* (isqrt *taille-grille*) x) (* (isqrt *taille-grille*) y))))))))
 
 
-; Vérifier que chaque chiffre 1-9 apparait uniquement une fois dans chaque carré
+; Vérifier que chaque chiffre apparait uniquement une fois dans chaque carré
 (defun valider-carre(grille)
   (loop for x in *liste-premiere-case* do 
     (if (= 0 *regles-respectees*)
@@ -223,10 +228,7 @@
    (if (= *regles-respectees* 1) 
      (return)
      (progn (setf *liste-chiffres-2* '())(setf *liste-chiffres* '()))))
-    (if (/= *regles-respectees* 1) grille))  
-
-
-
+    (if (/= *regles-respectees* 1) grille)) 
 
 
 ;;; Méthodes aléatoires ;;;
@@ -239,7 +241,7 @@
     (if (zerop (aref modele *colonne* *rang*))
       (setf *drap-aleat* 1)) 
   until (= *drap-aleat* 1)) 
-  (defparameter *chiffre* (1+ (random *taille-grille*)))); Chiffre entre 1 et 9
+  (defparameter *chiffre* (1+ (random *taille-grille*)))); Chiffre entre 1 et *taille-grille*
   
 
 
@@ -277,7 +279,7 @@
   (IA-parcourir-rang grille y *temp-vp*)
   (IA-parcourir-colonne grille x *temp-vp*)
   (if (= 2 (list-length *temp-vp*))
-    (progn (setf (aref grille x y) (second *temp-vp*))(setf *drapeau-solution-complexe* 0))) ; Solution est simple 
+    (progn (setf (aref grille x y) (second *temp-vp*))(setf *drapeau-solution-complexe* 0)(setq *rang* x)(setq *colonne* y) (setq *chiffre* (second *temp-vp*)))) ; Solution est simple 
   *temp-vp*)
 
 ; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
@@ -349,8 +351,6 @@
   (defparameter *grille-modifiable* grille)
   (defparameter *grille-solution* grille)
 
-  (setq *liste-grille* '())
-  
   (loop do
     (setq *solutions* (IA-determiner-solutions-possibles *grille-solution*))
     (verifier-toute-case-complete *grille-solution*)
@@ -360,18 +360,22 @@
     (verifier-toute-case-complete *grille-solution*)
    until (= *grille-est-complete* 0)))
 
-; ...... franchment je comprends toujours pas le but cette méthode...
+
 (defun main-standalone()
-  (setq *liste* '())
-  ;;(demander-rang)
-  ;(demander-colonne)
-  ;(demander-chiffre)
-  ;(remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*) 
-    (setq *liste* (list *rang* *colonne* *chiffre*)); ajouter trucs à la liste
-  *liste*) 
+
+  ;(setq *liste* '())
+  (defparameter *drapeau-modifiable* 0) ; pas modifiable
+  (verifier-cas-modifiable *rang* *colonne* *grille-modele*)
+  ;(if (not (null *rang*)) 
+ (if (zerop *drapeau-modifiable*) 
+  ; (return *rang* *colonne* *chiffre*))
+   ;(setq *liste* (list (list *rang* *colonne*) *chiffre*))); ajouter trucs à la liste
+  (values *rang* *colonne* *chiffre*) 
+  (values))) 
   
 
-   
+(defun blah (x y z)
+  (multiple-value-bind (a b c) ()(list a b c)))
 ;;; LE JEU ;;;
 
 (defun sudoku(grille)
@@ -383,13 +387,13 @@
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour résoudre la grille fournie avec une Intelligence Artificielle : ")
       (defparameter *jeu* (read-line))
       (cond 
-         ((string-equal *jeu* "interactif") (sudoku-interactive))
+         ((string-equal *jeu* "interactif") (sudoku-interactif))
          ((string-equal *jeu* "aleatoire") (sudoku-aleatoire))
          ((string-equal *jeu* "ia") (sudoku-ia) )
          (t (format t "Cette option n'existe pas.  Veuillez réessayer. ~%")))
    until (zerop *drapeau*)))
 
-(defun sudoku-interactive()
+(defun sudoku-interactif()
    (loop do 
       (afficher-grille *grille-modifiable*)
       (demander-rang)
