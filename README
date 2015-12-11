@@ -1,11 +1,19 @@
-Noms: Troy CAMPBELL (A3), Manon PINTAULT (A3), et Ali El Idrissi (A2)
+Noms: Troy CAMPBELL (A3), Manon PINTAULT (A3), et Ali El Idrissi (A1)
 Cours: Programmation 3
 Chargée: Damien Clergeaud
+Github: github.com/duexbergersallemands/programmation3_lisp
 
 
-/// Comment Jouer ///
 
- - Manon
+// Comment Jouer ///
+ 
+ Pour lancer le jeu: (sudoku grille).
+  - NOTE: Notre programme s'attend à un tableau 2D comme grille.  
+  - On vous demande alors le mode de jeu que vous souhaitez : interactif, aléatoire ou ia.
+  - Le mode intercatif est le mode dans lequel c'est vous qui jouez sur la grille. On vous demande à chaque tour la ligne, la colonne et le chiffre que vous souhaitez jouer.
+  - Le jeu se termine quand vous avez remplie entièrement et correctement la grille.
+  - Le mode aléatoire est le mode dans lequel l'ordinateur joue un coup aléatoire parmis les coup possibles.
+  - Le mode ia (intelligence artificielle) est le mode dans lequel l'ordinateur resout lui-même la grille fournie.
 
 /// Qu'est-ce qui se passe derrière le jeu? ///
 
@@ -14,18 +22,38 @@ Chargée: Damien Clergeaud
   pour stocker les valeurs fournies par l'utilisateur. La dernière grille est résolue par notre intelligence artificielle.
 
   Si l'utilisateur choisit le mode 'ia', tout simplement on affiche la grille que l'utilisateur a fournie.  Si 
-  l'utilisateur choisit un de deux autres modes, lorsque la grille modifiable est complète / "100% remplie" on vérifie 
-  si elle est remplie comme la solution que notre IA a déterminée.     
+  l'utilisateur choisit un des deux autres modes, lorsque la grille modifiable est complète / "100% remplie" on vérifie 
+  si elle est remplie exactement comme la solution que notre IA a déterminée.     
 
   On analyse la grille fournie pour déterminer dynamiquement quelles valeurs sont possibles (e.g. une grille 4x4 peut 
-  accepter des valeurs entre 1 et 4, malgré  
-
-   TRISTAN
+  accepter des valeurs entre 1 et 4).    
+  
+  Quand on joue en mode "interactif", on modifie une des copies de la grille principale. Quand on veut jouer un coup, on récupère grace à des variables la ligne, la colonne 
+  et le chiffre que l'on souhaite jouer. On regarde ensuite si c'est un coup possible (si cette case n'ai pas déjà remplie par une valeur de la grille initiale. Une fois 
+  que l'on a remplie entièrement la grille, on regarde juste si la grille est identique à la grille solution trouvé par l'IA. Si c'est le cas alors vous avez gagnez sinon 
+  on vous dit qu'il y a une erreur et vous devez la rectifier pour gagner la partie.
 
 /// Méthode Intelligence Artificielle ///
- 
- - Tristan
+  
+  Notre intelligence artificielle parcourt toutes les cases de la grille en boucle. 
 
+  À chaque case, on vérifie quelles valeurs
+  sont possible en analysant les chiffres déjà mis dans le rang, la colonne, et le carré dans lequel se trouve la case.  Si on 
+  détermine qu'il y a un seul chiffre possible, on remplit la case avec ce chiffre.  
+
+  On génère une liste des ensembles pour chaque case avec 
+  la valeur zéro dans la forme suivante: (#_valeurs_possible_pour_cette_case, x_coordonné, y_coordonneé).  Si à chaque itération de la boucle 
+  il y a au moins un ensemble avec #_valeurs_possibles_pour_cette_case égal à 1, on considère la grille d'être facile à résoudre et on n'utilise
+  aucune méthode avancée pour résoudre la grille.  Par contre, si'l y a au moins une itération où le minimum nombre de valeurs possible pour un 
+  ensemble est >= 2, on considère la grille d'être complexe et on emploit des méthodes plus avancées.
+  
+  À partir du moment où on se rend compte qu'une grille est complexe, on lance une méthode "A" qui,  comme suite: 
+  Si on détermine qu'il y a au moins un ensemble avec #_valeurs_possibles_pour_cette_case égal à 1, on fait un appel à "B" en passant la grille actuelle comme paramètre.
+  Si on détermine que le minimum nombre de valeurs possible pour un ensemble est >= 2, on fait un appel à "A" pour résoudre la liste des solutions possibles.  
+  Si on détermine que la grille est complète, on affecte la grille à une variable globale et on revient en arrière.  
+
+  En revenant en arrière quand la grille n'est pas complète, on essait toute permutation possible jusqu'a ce qu'on trouve la bonne solution.
+ 
 
 
 /// Fonctionalitées ///
@@ -33,6 +61,7 @@ Chargée: Damien Clergeaud
  - Notre sudoku accept toute grille des tailles suivantes (1x1, 4x4, 9x9)
  - L'utilisateur peut choisir entre trois modes: interactif, aléatoire, et intelligence artificielle
  - Après avoir joué un des modes au-dessus, un jouer peut sélectionner un autre mode sans relancer le programme 
+   (avec la même grille)
 
 
 /// Remarques Importantes ///
@@ -41,7 +70,8 @@ Chargée: Damien Clergeaud
    génère un ensemble qui représente une case dans la grille.  Si on détermine que la case est déjà remplie 
    dans le modèle, on regénère l'ensemble jusqu'à ce qu'elle soit valide. Aprèes, on génère un chiffre aléatoire
    et on écrase la case spécifiée (si nécessaire) avec ce chiffre.  
-
+ - Ali a eu du mal à faire marcher Git mais il a contribué en binôme.
+ - On se sert pas de la méthode main-standalone dans notre code mais on l'a implémentée pour satisfaire votre demande.  
 
 /// Division du travail ///
 
@@ -52,15 +82,18 @@ Troy CAMPBELL s'est occupé du:
    - Algorithmique des fonctions de l'IA
    - Réusinage du code
 
-Manon Pintault s'est occupée du: 
+Manon PINTAULT s'est occupée du: 
    - Implémentation du mode interactif
    - Implémentation du mode IA
    - Implémentation de la méthode d'affichage des grilles
    - Algorithmique des fonctions de l'IA
    - Réusinage du code
 
-Ali El Idrissi s'est occupé du: 
+Ali EL IDRISSI s'est occupé du: 
    - Algorithmique des fonctions de l'IA
    - Implémentation de la méthode d'affichage des grilles
    - Implémentation de Main Standalone
    - Implémentation des méthodes qui accèdent aux tableaux 
+
+
+

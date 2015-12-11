@@ -5,20 +5,19 @@
 ; Drapeau pour valider si les regles ont été respecté
 (defparameter *regles-respectees* 0)
 ; 0 est là car delete ne va pas supprimer le premier élément dans la liste
-; À remplir lors d'exécution 
+; À remplir lors de l'exécution 
 (defparameter *valeurs-possibles* '())
-; Modèle pour véfier que l'utilisateur n'écrase pas les chiffres donné au début du jeu.  
-(defparameter *liste-grilles* '())  ; liste de grilles au cas où...
+; Modèle pour vérifier que l'utilisateur n'écrase pas les chiffres donnés au début du jeu.  
+(defparameter *liste-grilles* '()) 
 ; Taille de la grille
 (defparameter *taille-grille* 0) 
 ; Liste de la première case de chaque carré
 (defparameter *liste-premiere-case* '())
 
-
 ;;; MÉTHODES GÉNÉRALES ;;; 
 
 
-; Afficher la grille en fonction de sa taille 
+;; Afficher la grille en fonction de sa taille 
 (defun afficher-grille (grille)
   (setq *rang* 1)
   (defparameter *rang-lettre* 0)
@@ -48,7 +47,7 @@
 	     (format t "~%"))))
 	   
 
-; Demander un chiffre de l'utilisateur
+;; Demander un chiffre à l'utilisateur
 (defun demander-chiffre ()
    (defparameter *drapeau-chiffre* 0)  
    (loop do
@@ -60,7 +59,7 @@
      until (zerop *drapeau-chiffre*))
     (clear-input))
          
-; Demander une colonne à l'utilisateur
+;; Demander une colonne à l'utilisateur
 (defun demander-colonne ()
    (defparameter *drapeau-col* 0)
    (loop do
@@ -72,7 +71,7 @@
     until (zerop *drapeau-col*))
     (clear-input))
          
-; Demander un rang à l'utilisateur
+;; Demander un rang à l'utilisateur
 (defun demander-rang ()
    (defparameter *drapeau-rang* 0)  
    (loop do
@@ -84,19 +83,21 @@
      until (zerop *drapeau-rang*))
     (clear-input))
 
-; Remplir une case dans la grille
+;; Remplir une case dans la grille
 (defun remplir-grille (y x grille chiffre)
    (defparameter *drapeau-placement* 0)
-      (verifier-cas-modifiable x y *grille-modele*)
+      (verifier-case-modifiable x y *grille-modele*)
       (if (zerop *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
         (format t "Vous ne pouvez modifier cette case. ~%"))) 
 
-; Determiner la taille de la grille
+
+
+;; Determiner la taille de la grille
 (defun determiner-taille-grille (grille)
   (setq *taille-grille* (list-length (first grille))))      
 
-; Determiner toutes les valeurs possibles dans la grille
+;; Determiner toutes les valeurs possibles dans la grille
 (defun determiner-valeurs-possibles ()
   (loop for y from 0 to *taille-grille* do 
    (setq *valeurs-possibles* (append *valeurs-possibles* (list y)))))
@@ -104,12 +105,12 @@
 
 ;;; MÉTHODES DE VÉRIFICATION/VALIDATION ;;;
 
-; Vérifer que la grille respecte toutes les regles du jeu (sans considerer les 0s)
+;; Vérifer que la grille respecte toutes les regles du jeu (sans considérer les 0)
 (defun valider-grille (grille)
   (valider-rangs-et-colonnes grille)
   (valider-carre grille))
 
-; Vérifier que aucun cas n'est pas vide
+;; Vérifier que aucune case n'est pas vide
 (defun verifier-toute-case-complete (grille)
    (defparameter *grille-est-complete* 0)
    (loop for x from 0 to (1- *taille-grille*) do
@@ -117,13 +118,13 @@
        (if (zerop (aref grille x y))
         (setq *grille-est-complete* 1)))))
 
-; Vérifier si cas est modifiable
-(defun verifier-cas-modifiable (x y modele) 
+;; Vérifier si case est modifiable
+(defun verifier-case-modifiable (x y modele) 
   (if (zerop (aref modele x y))
      (setf *drapeau-placement* 0)    ; Modifiable 
      (setf *drapeau-placement* 1)))  ; Non-modifiable
 
-;fonction pour savoir si ,une fois la grille remplie , elle est gagnante ou pas
+;; Fonction pour vérifier si ,une fois la grille remplie , elle est gagnante ou pas
 (defun verifier-solution(grille solution)
    (defparameter *drapeau* 0)
    (loop for y from 0 to (1- *taille-grille*) do
@@ -140,20 +141,20 @@
 
 ;;; MÉTHODES AUXILIAIRES ;;;
 
-; Créer une liste composée des cordonnes de la case la plus en haut à gauche pour chaque carré
+;; Créer une liste composée des cordonnées de la case la plus en haut à gauche pour chaque carré
 (defun creer-liste-carre ()
   (loop for y from 0 to (1- (isqrt *taille-grille*)) do
     (loop for x from 0 to (1- (isqrt *taille-grille*)) do  
       (setq *liste-premiere-case* (append *liste-premiere-case* (list (list (* (isqrt *taille-grille*) x) (* (isqrt *taille-grille*) y))))))))
 
 
-; Vérifier que chaque chiffre apparait uniquement une fois dans chaque carré
+;; Vérifier que chaque chiffre apparait uniquement une fois dans chaque carré
 (defun valider-carre(grille)
   (loop for x in *liste-premiere-case* do 
     (if (= 0 *regles-respectees*)
     (progn (parcourir-carre grille (first x) (second x)))))) 
 
-; Valider qu'il y a aucune repétition dans le carré (sans considerer les 0s)
+;; Valider qu'il y a aucune repétition dans le carré (sans considérer les 0)
 (defun parcourir-carre (grille x y) 
   (setq *chiffres* '())
   (setq *regles-respectees* 0)
@@ -165,19 +166,19 @@
          (setq *regles-respectees* 1))))))
 
 
-; Convertir liste en tableau
+;; Convertir liste en tableau
 (defun convertir-liste-tableau (liste)
 	    (make-array (list (length liste)
 			      (length (first liste)))
 			:initial-contents liste))
 
-; Convertir tableau en liste
+;; Convertir tableau en liste
 (defun convertir-tableau-liste (tableau)
 	   (loop for i below (array-dimension tableau 0)
 		 collect (loop for j below (array-dimension tableau 1)
 			       collect (aref tableau i j))))
 
-; Valider qu'il y a aucune répétition dans les colonnes et les rangs (sans considerer les 0s)
+;; Valider qu'il y a aucune répétition dans les colonnes et les rangs (sans considérer les 0)
 (defun valider-rangs-et-colonnes (grille)
   (defparameter *regles-respectees* 0)
   (setq *liste-chiffres* '())
@@ -197,12 +198,13 @@
 
 ;;; Méthodes aléatoires ;;;
 
+;; Générer les variables aléatoirement
 (defun generer-variables-aleatoires (modele)
   (setf *drap-aleat* 0)
   (loop do 
     (defparameter *colonne* (random *taille-grille*)) 
     (defparameter *rang* (random *taille-grille*))
-    (if (zerop (aref modele *colonne* *rang*))
+    (if (zerop (aref modele *rang* *colonne*))
       (setf *drap-aleat* 1)) 
   until (= *drap-aleat* 1)) 
   (defparameter *chiffre* (1+ (random *taille-grille*)))); Chiffre entre 1 et *taille-grille*
@@ -212,31 +214,34 @@
 
 ;;; Methodes intelligence-artificielle ;;;
 
-
+;; Choisir un chiffre
 (defun IA-choisir-chiffre (grille x y valeurs)
   (loop for (a b) in *liste-premiere-case* do 
    (if (and (and (>= x a) (< x (+ a (isqrt *taille-grille*)))) (and (>= y b) (< y (+ b (isqrt *taille-grille*))))) 
      (IA-parcourir-carre grille a b valeurs))) valeurs)
 
+;; Parcourir le carré
 (defun IA-parcourir-carre (grille x y valeurs) 
   (loop for a from x to (+ (1- (isqrt *taille-grille*)) x) do
     (loop for b from y to (+ (1- (isqrt *taille-grille*)) y) do 
        (delete (aref grille a b) valeurs)))
   valeurs)
 
-; Enlever les valeurs trouvé dans la colonne
+;; Enlever les valeurs trouvées dans la colonne
 (defun IA-parcourir-colonne (grille x valeurs)
   (loop for y from 0 to (1- *taille-grille*) do
     (delete (aref grille x y) valeurs)))
 
-; Enlever les valeurs trouvé dans le rang
+;; Enlever les valeurs trouvées dans le rang
 (defun IA-parcourir-rang (grille y valeurs)
   (loop for x from 0 to (1- *taille-grille*) do 
     (delete (aref grille x y) valeurs)))
 
-; Retourner une liste de valeurs possible pour un créneau
-; Si la taille de la liste = 2 (c'est à dire 0 et un autre chiffre sont les seuls chiffres présent dans la liste)
-; on va mettre le chiffre dans le créneau tout de suite. 
+;; Retourner une liste de valeurs possibles pour une case
+;; Si la taille de la liste = 2 (c'est à dire 0 et un autre chiffre sont les seuls chiffres présent dans la liste)
+;; on va mettre le chiffre dans la case tout de suite. 
+;; NOTE: On a implémenté cette méthode dans une façon assez bizarre à fin de satisfaire votre démande (main-standalone)
+
 (defun IA-determiner-valeurs-possibles(grille x y)
   (setq *temp-vp* (copy-list *valeurs-possibles*))
   (IA-choisir-chiffre grille x y *temp-vp*)
@@ -244,10 +249,10 @@
   (IA-parcourir-colonne grille x *temp-vp*)
   (if (= 2 (list-length *temp-vp*))
     (progn (setf (aref grille x y) (second *temp-vp*))(setf *drapeau-solution-complexe* 0)(setq *rang* x)(setq *colonne* y) (setq *chiffre* (second *temp-vp*)))) ; Solution est simple 
-  *temp-vp*)
+  *temp-vp*)  
 
-; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
-; pour chaque créneau pour déterminer quel créneau est à remplir d'abord.
+;; Retourner une liste de forme ((#ValeursPossibles x y)(#ValeursPossibles2 x2 y2)...) 
+;; pour chaque case pour déterminer quelle case est à remplir d'abord.
 (defun IA-determiner-solutions-possibles (grille)
   (defparameter *liste* '())
   (setq *drapeau-solution-complexe* 1) ; 1 si la solution est complexe, 0 si elle est simple 
@@ -258,8 +263,7 @@
    (setq *liste* (reverse (sort *liste* #'> :key #'car)))
    *liste*)
 
-; à regarder... 
-; retourner une liste de forme ((x y ... solutionsPossibles)(x2 y2 ... solutionsPossibles2)... grille)
+;; Retourner une liste de forme ((x y ... solutionsPossibles)(x2 y2 ... solutionsPossibles2)... grille)
 (defun backtrack(liste grille)
   (defparameter *solutions-complexes* '())
   (loop for x in liste do
@@ -268,14 +272,14 @@
         (setq *solutions-complexes* (append *solutions-complexes* (list (second x) (third x))(cdr *temp*))))))*solutions-complexes*)
 
 
-; Donné une liste de solutions possibles, essayer d'aller plus en profondeur avec chaque solution proposée
+;; Donner une liste de solutions possibles, essayer d'aller plus en profondeur avec chaque solution proposée
 (defun IA-tester-possibilities (grille liste) 
   (loop for i in (cdr (cdr liste)) do
     (setq *grille-actuelle* (convertir-liste-tableau (first (last *liste-grilles*))))
     (remplir-grille  (second liste) (first liste) *grille-actuelle* i)
     (IA-aller-plus-en-profondeur *grille-actuelle*)))
 
-; Essayer de remplir grille.  Si la grille n'est plus valable, revenir en arrière. Si elle est valable, continuer d'aller plus en profondeur 
+;; Essayer de remplir la grille.  Si la grille n'est plus valable, revenir en arrière. Si elle est valable, continuer d'aller plus en profondeur 
 (defun IA-aller-plus-en-profondeur (grille )
   (setq *liste-grilles* (append *liste-grilles* (list (convertir-tableau-liste grille))))
   (setq *solutions* (IA-determiner-solutions-possibles grille))
@@ -292,7 +296,7 @@
   (setq *liste-grilles* (remove (first (last *liste-grilles*)) *liste-grilles* )))
 
 
-
+;; Vider les variables
 (defun vider-toute-variable()
   (defparameter *grille-est-complete* 0)
   (defparameter *regles-respectees* 0)
@@ -300,19 +304,24 @@
   (defparameter *liste-grilles* '())  
   (defparameter *taille-grille* 0)
   (defparameter *liste-premiere-case* '()))
- 
 
-;;; METHODES OBLIGATOIRES ;;;
-
-; Initialiser toutes les variables et determiner la solution de la grille fournie.
-(defun init-standalone (grille)
+;; Initialiser quelques variables 
+(defun initialiser-variables (grille)
   (vider-toute-variable)
   (defparameter *drapeau-solution-complexe* 1)
   (determiner-taille-grille (convertir-tableau-liste grille))
   (determiner-valeurs-possibles)
-  (creer-liste-carre)
-  (defparameter *grille-modele* grille)
-  (defparameter *grille-modifiable* grille)
+  (creer-liste-carre))
+
+
+;;; METHODES OBLIGATOIRES ;;;
+
+;; Initialiser toutes les variables et déterminer la solution de la grille fournie.
+(defun init-standalone (grille)
+ (initialiser-variables grille)
+
+(defparameter *grille-modele* (convertir-liste-tableau (copy-list (convertir-tableau-liste grille))))
+  (defparameter *grille-modifiable* (convertir-liste-tableau (copy-list (convertir-tableau-liste grille))))
   (defparameter *grille-solution* grille)
 
   (loop do
@@ -327,7 +336,7 @@
 
 (defun main-standalone()
   (defparameter *drapeau-modifiable* 0) ; pas modifiable
-  (verifier-cas-modifiable *rang* *colonne* *grille-modele*)
+  (verifier-case-modifiable *rang* *colonne* *grille-modele*)
  (if (zerop *drapeau-modifiable*) 
   (values *rang* *colonne* *chiffre*) 
   (values))) 
@@ -337,10 +346,10 @@
 ;;; LE JEU ;;;
 
 (defun sudoku(grille)
-   (format t "Welcome ! Bienvenue ! Bienvenido ! Wilkommen ! ~%")
+   (format t "Bienvenue ! Bienvenido ! Wilkommen ! ~%")
    (defparameter *drapeau* 1)
    (loop do 
-      (init-standalone grille)  
+      (init-standalone (convertir-liste-tableau (copy-list (convertir-tableau-liste grille))))  
       (format t "Choisissez votre mode : ~%")
       (format t "'interactif' pour jouer tout seul, 'aleatoire' pour voir la stratégie aléatoire, ou 'ia' pour résoudre la grille fournie avec une Intelligence Artificielle : ")
       (defparameter *jeu* (read-line))
@@ -360,7 +369,7 @@
       (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
       (verifier-toute-case-complete *grille-modifiable*) 
       (if (zerop *grille-est-complete*)
-        (verifier-solution grille *grille-solution*))
+        (verifier-solution *grille-modifiable* *grille-solution*))
     until (zerop *drapeau*)))
 
 (defun sudoku-aleatoire()
@@ -371,13 +380,14 @@
      (remplir-grille *colonne* *rang* *grille-modifiable* *chiffre*)
      (verifier-toute-case-complete *grille-modifiable*) 
      (if (zerop *grille-est-complete*)
-       (verifier-solution grille *grille-solution*))
+       (verifier-solution *grille-modifiable* *grille-solution*))
   until (zerop *drapeau*))
   (afficher-grille *grille-modifiable*))
 
 
 (defun sudoku-ia()
   (afficher-grille *grille-solution*)
-  (format t "~% Voila ! Notre Intelligence Artificielle a résolu la grille que vous avez fournie. ~%"))
+  (format t "~% Voila ! Notre Intelligence Artificielle a résolu la grille que vous avez fournie. ~%")
+  (setq *drapeau* 0))
 
 
