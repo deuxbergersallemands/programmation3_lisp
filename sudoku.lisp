@@ -1,50 +1,3 @@
-;;; À Supprimer ;;;
-
-
-(defparameter *grille-difficile*
-(list (list 0 0 5 8 4 0 0 2 0)
-    (list 2 0 0 6 0 0 0 5 0)
-    (list 6 8 1 0 0 9 0 0 0)
-    (list 4 0 0 0 0 0 1 0 0)
-    (list 8 0 2 0 0 0 7 0 4)
-    (list 0 0 7 0 0 0 0 0 2)
-    (list 0 0 0 9 0 0 3 1 6)
-    (list 0 2 0 0 0 5 0 0 9)
-    (list 0 3 0 0 8 1 2 0 0)))
-
-
-(defparameter *grille-diabolique*
-(list (list 0 0 0 0 0 5 0 2 4)
-   (list 8 0 1 0 0 4 0 0 0)
-   (list 9 0 0 0 3 0 5 8 0)
-   (list 0 7 0 5 0 0 0 0 0)
-   (list 4 0 0 0 0 0 0 0 9)
-   (list 0 0 0 0 0 2 0 6 0)
-   (list 0 3 5 0 8 0 0 0 2)
-   (list 0 0 0 4 0 0 3 0 1)
-   (list 1 4 0 3 0 0 0 0 0)))
-
-
-(defparameter *gd2*
-(list (list 0 9 7 2 1 0 0 0 0)
-   (list 0 0 0 8 4 0 5 0 0)
-   (list 8 0 0 0 0 6 0 0 0)
-   (list 0 8 5 0 9 0 0 0 6)
-   (list 0 0 4 0 0 0 2 0 0)
-   (list 6 0 0 0 8 0 7 3 0)
-   (list 0 0 0 4 0 0 0 0 8)
-   (list 0 0 1 0 3 8 0 0 0)
-   (list 0 0 0 0 7 1 3 5 0)))
-
-(defparameter *quatre*
-(list (list 3 4 1 0)
-  (list 0 2 0 0)
-  (list 0 0 2 0)
-  (list 0 1 4 3)))
-
-(defparameter *un* 
- (list (list 0)))
-
 ;;; VARIABLES GLOBALES ;;;
 
 ; Drapeau pour valider si la grille est complete 
@@ -62,71 +15,82 @@
 (defparameter *liste-premiere-case* '())
 
 
-;(defparameter *rang* 0)
-;(defparameter *colonne* 0)
-;(defparameter *chiffre* 0)
-
 ;;; MÉTHODES GÉNÉRALES ;;; 
 
 
-; Afficher la grille
+; Afficher la grille en fonction de sa taille 
 (defun afficher-grille (grille)
   (setq *rang* 1)
-  (format t "~%    A   B   C   D   E   F   G   H   I  ")
-  (format t "~%  ------------------------------------- ~%")
+  (defparameter *rang-lettre* 0)
+  (setq *tiret* (string " *"))
+  (defparameter *alphabet* (list 'A 'B 'C 'D 'E 'F 'G 'H 'I 'J 'K 'M 'L 'N 'O 'P 'Q 'R 'S 'T 'U 'V 'W 'X 'Y 'Z))
+  (format t "    ")
+  (loop for a from 0 to (1- *taille-grille*) do
+		(format t "~A   " (nth *rang-lettre* *alphabet*))
+        (setq *rang-lettre* (1+ *rang-lettre*))
+        (setq *tiret* (concatenate 'string *tiret* "****")))
+   (format t "~% ~A ~%" *tiret*)
+   (setq *var_colonne* (nth (1- *rang-lettre*) *alphabet*))
   (loop for i below (car (array-dimensions grille)) do
-        (format t "~a " *rang*)
-        (setq *rang* (1+ *rang*))
-        (loop for j below (cadr (array-dimensions grille)) do
-          (if (not (zerop (aref grille i j)))
-            (progn (let ((cellule (aref grille i j)))
-            (format t "| ~a " cellule)))
-            (format t "|   ")))
-        (format t "| ~%  ------------------------------------- ~%")))
-
+       (format t "~a " *rang*)
+       (setq *rang* (1+ *rang*))
+       (loop for j below (cadr (array-dimensions grille)) do
+		  (progn
+		    (if (zerop (aref grille i j))
+		      (setq *cellule* " ")
+		      (setq *cellule* (aref grille i j)))                    
+		    (if (zerop (mod j (isqrt *taille-grille*)))
+			  (format t "| ~a " *cellule*)
+			  (format t "  ~a " *cellule*))))
+       (format t "|")
+       (if (zerop (mod (1- *rang*) (isqrt *taille-grille*)))
+	     (format t "~% ~A ~%" *tiret*)
+	     (format t "~%"))))
+	   
 
 ; Demander un chiffre de l'utilisateur
 (defun demander-chiffre ()
    (defparameter *drapeau-chiffre* 0)  
    (loop do
-      (format t "Choisissez un chiffre entre 1 et 9: ")
-      (defparameter *chiffre* (char-code (char (read-line) 0)))	
-	(cond ((and (< *chiffre* 58) (> *chiffre* 48)) (progn (setf *drapeau-chiffre* 0) (setf *chiffre* (- *chiffre* 48))))  
-	       (t (progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chiffre* 1))))
+      (format t "Choisissez un chiffre entre 1 et ~D: " *taille-grille*)
+      (defparameter *chiffre* (parse-integer(read-line) ))	
+	  (if (and (> *chiffre* 0) (< *chiffre* (1+ *taille-grille*)))
+		(progn (setf *drapeau-chiffre* 0) *chiffre*)
+		(progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-chiffre* 1)))
      until (zerop *drapeau-chiffre*))
     (clear-input))
          
-
-; Demander un colonne de l'utilisateur
+; Demander une colonne à l'utilisateur
 (defun demander-colonne ()
    (defparameter *drapeau-col* 0)
    (loop do
-      (format t "Choisissez une colonne (A-I): ")
+      (format t "Choisissez une colonne (A-~A): " *var_colonne*)
       (defparameter *colonne* (char-code (char (read-line) 0)))
-	 (cond ((and (< *colonne* 74) (> *colonne* 64)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 65))))  ; pour les majuscules
-               ((and (< *colonne* 106) (> *colonne* 96)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 97))))  ;pour les minuscules
+	 (cond ((and (< *colonne* (+ 65 *taille-grille*)) (> *colonne* 64)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 65))))  ; pour les majuscules (ASCII)
+               ((and (< *colonne* (+ 97 *taille-grille*)) (> *colonne* 96)) (progn (setf *drapeau-col* 0) (setf *colonne* (- *colonne* 97))))  ;pour les minuscules
 	       (t (progn (format t "Cette colonne n'est pas valable. ") (setf *drapeau-col* 1))))
     until (zerop *drapeau-col*))
     (clear-input))
          
-; Demander un rang de l'utilisateur
+; Demander un rang à l'utilisateur
 (defun demander-rang ()
    (defparameter *drapeau-rang* 0)  
    (loop do
-      (format t "Choisissez un rang (1-9): ")
-      (defparameter *rang* (char-code (char (read-line) 0)))	
-	(cond ((and (< *rang* 58) (> *rang* 48)) (progn (setf *drapeau-rang* 0) (setf *rang* (- *rang* 49))))  
-	       (t (progn (format t "Ce rang n'est pas valable. ") (setf *drapeau-rang* 1))))
+      (format t "Choisissez un rang (1-~D): " *taille-grille*)
+      (defparameter *rang* (parse-integer(read-line) ))	
+	  (if (and (> *rang* 0) (< *rang* (1+ *taille-grille*)))
+		(progn (setf *drapeau-rang* 0) (setf *rang* (1- *rang*)))
+		(progn (format t "Ce chiffre n'est pas valable. ") (setf *drapeau-rang* 1)))
      until (zerop *drapeau-rang*))
     (clear-input))
 
-; Remplir un cas dans la grille
+; Remplir une case dans la grille
 (defun remplir-grille (y x grille chiffre)
    (defparameter *drapeau-placement* 0)
       (verifier-cas-modifiable x y *grille-modele*)
       (if (zerop *drapeau-placement*)
          (setf (aref grille x y) chiffre) 
-        (format t "Vous ne pouvez modifier cette cellule. ~%"))) 
+        (format t "Vous ne pouvez modifier cette case. ~%"))) 
 
 ; Determiner la taille de la grille
 (defun determiner-taille-grille (grille)
@@ -135,7 +99,7 @@
 ; Determiner toutes les valeurs possibles dans la grille
 (defun determiner-valeurs-possibles ()
   (loop for y from 0 to *taille-grille* do 
-   (setq *valeurs-possibles* (append *valeurs-possibles*  (list y)))))
+   (setq *valeurs-possibles* (append *valeurs-possibles* (list y)))))
 
 
 ;;; MÉTHODES DE VÉRIFICATION/VALIDATION ;;;
@@ -362,20 +326,14 @@
 
 
 (defun main-standalone()
-
-  ;(setq *liste* '())
   (defparameter *drapeau-modifiable* 0) ; pas modifiable
   (verifier-cas-modifiable *rang* *colonne* *grille-modele*)
-  ;(if (not (null *rang*)) 
  (if (zerop *drapeau-modifiable*) 
-  ; (return *rang* *colonne* *chiffre*))
-   ;(setq *liste* (list (list *rang* *colonne*) *chiffre*))); ajouter trucs à la liste
   (values *rang* *colonne* *chiffre*) 
   (values))) 
   
 
-(defun blah (x y z)
-  (multiple-value-bind (a b c) ()(list a b c)))
+  
 ;;; LE JEU ;;;
 
 (defun sudoku(grille)
@@ -423,33 +381,3 @@
   (format t "~% Voila ! Notre Intelligence Artificielle a résolu la grille que vous avez fournie. ~%"))
 
 
-
-;;; COMMENTAIRES GENERALES
-
-;;;;; À faire....
-;; Organisation...
-; Variables Globales 
-; Méthodes Générales
-; Méthodes Aléatoires
-; Méthodes Intelligence-Artificielle
-; Méthodes obligatoires (init-standalone et l'autre, qui est toujours à implémenter)
-; Jeu
-
-;; Style
-; Mettre tout les méthodes etc. en français
-; Formatter le code àfin de suivre les standards Lisp
-; 
-
-;; Extras (?)
-; Ajouter un nouveau mode qui suggère à l'utilisateur une liste de chiffre valide pour la case spécifiée (mode: Interactif avec aide d'une IA) 
-
-;; Validation
-; Vérifier que l'utilisateur ne peut pas.... 
-
-;; À Completer
-; Formatter la grille dans une manière plus jolie 
-
-;; TESTS
-; Vérifier que tous les tests passent avec le testeur de la prof
-; Tester à la main le mode aléatoire et le mode interactif
-; Vérifier combien de temps il faut pour éxécuter le mode IA 
