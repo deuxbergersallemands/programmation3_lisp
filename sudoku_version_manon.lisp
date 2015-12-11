@@ -1,49 +1,3 @@
-;;; À Supprimer ;;;
-
-
-(defparameter *grille-difficile*
-(list (list 0 0 5 8 4 0 0 2 0)
-    (list 2 0 0 6 0 0 0 5 0)
-    (list 6 8 1 0 0 9 0 0 0)
-    (list 4 0 0 0 0 0 1 0 0)
-    (list 8 0 2 0 0 0 7 0 4)
-    (list 0 0 7 0 0 0 0 0 2)
-    (list 0 0 0 9 0 0 3 1 6)
-    (list 0 2 0 0 0 5 0 0 9)
-    (list 0 3 0 0 8 1 2 0 0)))
-
-
-(defparameter *grille-diabolique*
-(list (list 0 0 0 0 0 5 0 2 4)
-   (list 8 0 1 0 0 4 0 0 0)
-   (list 9 0 0 0 3 0 5 8 0)
-   (list 0 7 0 5 0 0 0 0 0)
-   (list 4 0 0 0 0 0 0 0 9)
-   (list 0 0 0 0 0 2 0 6 0)
-   (list 0 3 5 0 8 0 0 0 2)
-   (list 0 0 0 4 0 0 3 0 1)
-   (list 1 4 0 3 0 0 0 0 0)))
-
-
-(defparameter *gd2*
-(list (list 0 9 7 2 1 0 0 0 0)
-   (list 0 0 0 8 4 0 5 0 0)
-   (list 8 0 0 0 0 6 0 0 0)
-   (list 0 8 5 0 9 0 0 0 6)
-   (list 0 0 4 0 0 0 2 0 0)
-   (list 6 0 0 0 8 0 7 3 0)
-   (list 0 0 0 4 0 0 0 0 8)
-   (list 0 0 1 0 3 8 0 0 0)
-   (list 0 0 0 0 7 1 3 5 0)))
-
-(defparameter *quatre*
-(list (list 3 4 1 0)
-  (list 0 2 0 0)
-  (list 0 0 2 0)
-  (list 0 1 4 3)))
-
-(defparameter *un* 
- (list (list 0)))
 
 ;;; VARIABLES GLOBALES ;;;
 
@@ -60,8 +14,6 @@
 (defparameter *taille-grille* 0) 
 ; Liste de la première case de chaque carré
 (defparameter *liste-premiere-case* '())
-;variable qui sert pour la demande de la colonne
-(defparameter *var_colonne* (string " "))
 
 ;;; MÉTHODES GÉNÉRALES ;;; 
 
